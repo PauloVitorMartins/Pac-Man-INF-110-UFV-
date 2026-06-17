@@ -2,7 +2,7 @@
 
 Este projeto consiste no desenvolvimento do clássico jogo **Pac-Man** utilizando a linguagem **C++** e a biblioteca **SFML**. 
 
-Proposto pelo professor **André Gustavo** durante o primeiro período do curso de **Ciência da Computação** na **Universidade Federal de Viçosa (UFV)**, o objetivo principal do projeto foi aplicar de forma prática e robusta todos os conceitos de lógica de programação e computação gráfica aprendidos durante o semestre.
+Proposto pelo professor **André Gustavo** durante o primeiro período do curso de **Ciência da Computação** na **Universidade Federal de Viçosa (UFV)**, o objetivo principal do projeto foi aplicar de forma prática e robusta todos os conceitos de lógica de programação aprendidos durante o semestre.
 
 ---
 
