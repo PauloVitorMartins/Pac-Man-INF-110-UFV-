@@ -8,9 +8,9 @@ Proposto pelo professor **André Gustavo** durante o primeiro período do curso 
 
 ## 👥 Desenvolvedores
 Projeto desenvolvido em colaboração por:
-* **Paulo Vitor Martins Silva**
+* **Victor Mendes** 
 * **Rhuan Machado**
-* **Victor Mendes**
+* **Paulo Vitor Martins Silva**
 
 ---
 
