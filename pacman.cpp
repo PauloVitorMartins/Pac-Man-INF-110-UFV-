@@ -129,27 +129,27 @@ int main() {
         // desenha paredes
         for(int i=0;i<31;i++)
             for(int j=0;j<29;j++) {
-                float reducional = 10;
-                float largura = 34;
-                float altura = 34;
-                float X = xdeslocamento + j * SIZE;
-                float Y = ydeslocamento + i * SIZE;
-                if (mapa[i][j]=='1' && mapa[i+1][j] != '1') {
-                    altura -= reducional;
-                } if (mapa[i][j]=='1' && mapa[i-1][j] != '1') {
-                    altura -= reducional;
-                    Y += reducional;
-                } if (mapa[i][j]=='1' && mapa[i][j+1] != '1') {
-                    largura -= reducional;
-                } if (mapa[i][j]=='1' && mapa[i][j-1] != '1') {
-                    largura -= reducional;
-                    X += reducional;
-                }
                 if(mapa[i][j] == '1') {
-                quad.setPosition({X, Y});
-                quad.setSize({largura, altura});
+                if(mapa[i-1][j] != '1') {
+                quad.setPosition({xdeslocamento + j*SIZE, i*SIZE});
+                quad.setSize({34, 2});
                 window.draw(quad);
                 }
+                if(mapa[i+1][j] != '1') {
+                quad.setPosition({xdeslocamento + j*SIZE, i*SIZE + 32});
+                quad.setSize({34, 2});
+                window.draw(quad);
+                } if(mapa[i][j-1] != '1') {
+                quad.setPosition({xdeslocamento + j*SIZE, i*SIZE});
+                quad.setSize({2, 34});
+                window.draw(quad);
+                } if (mapa[i][j+1] != '1') {
+                quad.setPosition({xdeslocamento + j*SIZE + 32, i*SIZE});
+                quad.setSize({2,34});
+                window.draw(quad);
+                }
+            }
+
             }
                 
 
