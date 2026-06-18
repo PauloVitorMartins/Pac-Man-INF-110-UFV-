@@ -58,7 +58,7 @@ char mapa[42][42] = {
   "155555555555555555555555555555555555551",
   "111111111111111111111111111111111111111"
 };
-const float SIZE = 34;      // Tamanho de cada célula do mapa
+const float SIZE = 20;      // Tamanho de cada célula do mapa
 
 int posx = 9; // posicao do PacMan
 int posy = 7;
@@ -122,9 +122,13 @@ int main() {
                   }
             }
         }
+         
+         if(relogioMovimento.getElapsedTime() > sf::seconds(0.0001)) {
+          posxf += (posx - posxf ) * 0.1f;
+          posyf += (posy - posyf) * 0.1f;
+          relogioMovimento.restart();
+         }
 
-         posxf += (posx - posxf ) * 0.2f;
-         posyf += (posy - posyf) * 0.2f;
          //posicao de renderização 
 
         // Muda a posição do PacMan a cada 0.17 segundos
@@ -147,20 +151,20 @@ int main() {
             if(mapa[i][j] == '1') {
                 if(mapa[i-1][j] != '1') {
                 quad.setPosition({xdeslocamento + j*SIZE, i*SIZE});
-                quad.setSize({34, 2});
+                quad.setSize({SIZE, 2});
                 window.draw(quad);
                 }
                 if(mapa[i+1][j] != '1') {
-                quad.setPosition({xdeslocamento + j*SIZE, i*SIZE + 32});
-                quad.setSize({34, 2});
+                quad.setPosition({xdeslocamento + j*SIZE, i*SIZE + SIZE - 2});
+                quad.setSize({SIZE, 2});
                 window.draw(quad);
                 } if(mapa[i][j-1] != '1') {
                 quad.setPosition({xdeslocamento + j*SIZE, i*SIZE});
-                quad.setSize({2, 34});
+                quad.setSize({2, SIZE});
                 window.draw(quad);
                 } if (mapa[i][j+1] != '1') {
-                quad.setPosition({xdeslocamento + j*SIZE + 32, i*SIZE});
-                quad.setSize({2,34});
+                quad.setPosition({xdeslocamento + j*SIZE + SIZE - 2, i*SIZE});
+                quad.setSize({2,SIZE});
                 window.draw(quad);
                 }
             }
@@ -169,7 +173,7 @@ int main() {
                 
 
         // desenha PacMan
-         sprite.setPosition({xdeslocamento + posxf*SIZE, ydeslocamento +posyf*SIZE}); //o que fizer no desenho tem que fazer aqui
+         sprite.setPosition({xdeslocamento + posxf*SIZE - 15, ydeslocamento +posyf*SIZE}); //o que fizer no desenho tem que fazer aqui
         // para renderização dos espaços e a posição dele baterem
         window.draw(sprite);
 
