@@ -147,11 +147,6 @@ int main() {
         // Muda a posição do PacMan a cada 0.17 segundos
         if(relogioAnimacao.getElapsedTime() > sf::seconds(0.17)) {
             relogioAnimacao.restart();
-            if (cima && mapa[posy-1][posx] != '5') posy --;     
-            if (baixo && mapa[posy+1][posx] != '5') posy ++;
-            if (esq && mapa[posy][posx-1] != '5') posx --;
-            if (dir && mapa[posy][posx+1] != '5') posx ++;
-
         }
 
 
