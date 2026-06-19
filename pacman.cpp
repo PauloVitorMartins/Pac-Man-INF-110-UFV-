@@ -15,7 +15,10 @@
 // 5 = Preenchimento Preto (Borda visual)
 // 0 = Caminho transitável (Conectado, não renderizado)
 
-char mapa[42][42] = {
+const int linhas = 42;
+const int colunas = 39;
+
+char mapa[42][40] = {
   "111111111111111111111111111111111111111",
   "155555555555555555515555555555555555551",
   "153000000000000000515000000000000000351",
@@ -59,10 +62,12 @@ char mapa[42][42] = {
   "155555555555555555555555555555555555551",
   "111111111111111111111111111111111111111"
 };
-const float SIZE = 20;
-const float tamanhoBolinhaPequena = 3;
-const float tamanhoBolinhaGrande = 7;
-const float tamanhoPac = 48;      // Tamanho de cada célula do mapa
+const float larguraTela = 1920.0f;
+const float alturaTela = 1080.0f;
+const float SIZE = 25;
+const float tamanhoBolinhaPequena = SIZE * 0.15f; 
+const float tamanhoBolinhaGrande = SIZE * 0.35f;
+const float tamanhoPac = SIZE * 2.4f;
 float velocidade = 0.2f;
 
 float sizeQuadBlack = SIZE*3;
@@ -74,8 +79,10 @@ int posyghost =  10;
 
 float posxf = 9.0f; //posicao relativa fluida
 float posyf = 7.0f; 
-float xdeslocamento = 500;
-float ydeslocamento = 0;
+float xdeslocamento = (larguraTela - (colunas*SIZE))/2.0f;
+float ydeslocamento = (alturaTela - (linhas*SIZE))/2.0f;
+
+float espessuraParede = SIZE * 0.1f;
 
 bool cima = false;  // direcao de movimento do PacMan
 bool baixo = false;
@@ -139,6 +146,9 @@ int main() {
         return 0;
     }
 
+    float escalaPacman = tamanhoPac / texture.getSize().x;
+    sprite.setScale({escalaPacman, escalaPacman});
+
     sf::Font font; //fonte
     if(!font.openFromFile("emulogic.ttf")){
         std::cout << "Erro lendo fonte emulogic\n";
@@ -184,8 +194,10 @@ int main() {
                   }
             }
         }
-            bool noCentroX = std::abs(posxf - std::round(posxf)) < 0.05f;
-            bool noCentroY = std::abs(posyf - std::round(posyf)) < 0.05f;
+
+            float tolerancia = velocidade * 0.55f;
+            bool noCentroX = std::abs(posxf - std::round(posxf)) < tolerancia;
+            bool noCentroY = std::abs(posyf - std::round(posyf)) < tolerancia;
 
             if (noCentroX && noCentroY) {
 
@@ -257,40 +269,40 @@ int main() {
         // desenhar tudo aqui...
 
         // desenha fantasma1
-        fantasma1.setPosition({xdeslocamento + posxghost*SIZE + SIZE/2, ydeslocamento + posyghost*SIZE + SIZE/2}); //o que fizer no desenho tem que fazer aqui
-        // para renderização dos espaços e a posição dele baterem
-        window.draw(fantasma1);
+        // fantasma1.setPosition({xdeslocamento + posxghost*SIZE + SIZE/2, ydeslocamento + posyghost*SIZE + SIZE/2}); //o que fizer no desenho tem que fazer aqui
+        // // para renderização dos espaços e a posição dele baterem
+        // window.draw(fantasma1);
 
         // desenha paredes
-        for(int i=0;i<42;i++)
-            for(int j=0;j<39;j++) {
+        for(int i=0;i<linhas;i++)
+            for(int j=0;j<colunas;j++) {
             if(mapa[i][j] == '1') {
                 if(mapa[i-1][j] != '1') {
-                quad.setPosition({xdeslocamento + j*SIZE, i*SIZE});
-                quad.setSize({SIZE, 2});
+                quad.setPosition({xdeslocamento + j*SIZE, ydeslocamento+ i*SIZE});
+                quad.setSize({SIZE, espessuraParede});
                 window.draw(quad);
                 }
                 if(mapa[i+1][j] != '1') {
-                quad.setPosition({xdeslocamento + j*SIZE, i*SIZE + SIZE - 2});
-                quad.setSize({SIZE, 2});
+                quad.setPosition({xdeslocamento + j*SIZE, ydeslocamento+ i*SIZE + SIZE - espessuraParede});
+                quad.setSize({SIZE, espessuraParede});
                 window.draw(quad);
                 } if(mapa[i][j-1] != '1') {
-                quad.setPosition({xdeslocamento + j*SIZE, i*SIZE});
-                quad.setSize({2, SIZE});
+                quad.setPosition({xdeslocamento + j*SIZE, ydeslocamento+ i*SIZE});
+                quad.setSize({espessuraParede, SIZE});
                 window.draw(quad);
                 } if (mapa[i][j+1] != '1') {
-                quad.setPosition({xdeslocamento + j*SIZE + SIZE - 2, i*SIZE});
-                quad.setSize({2,SIZE});
+                quad.setPosition({xdeslocamento + j*SIZE + SIZE - espessuraParede, ydeslocamento+ i*SIZE});
+                quad.setSize({espessuraParede,SIZE});
                 window.draw(quad);
                 }
             }
             if(mapa[i][j] == '0'){
-                bolinha.setOrigin({(tamanhoBolinhaPequena)/2, (tamanhoBolinhaPequena)/2}); 
+                bolinha.setOrigin({tamanhoBolinhaPequena, tamanhoBolinhaPequena}); 
                 bolinha.setPosition({xdeslocamento + j*SIZE + SIZE/2, ydeslocamento + i*SIZE + SIZE/2});
                 window.draw(bolinha);
             }
             else if(mapa[i][j] == '3'){
-                BOLA.setOrigin({(tamanhoBolinhaGrande)/2, (tamanhoBolinhaGrande)/2});
+                BOLA.setOrigin({tamanhoBolinhaGrande, tamanhoBolinhaGrande});
                 BOLA.setPosition({xdeslocamento + j*SIZE + SIZE/2, ydeslocamento + i*SIZE + SIZE/2});
                 window.draw(BOLA);
             }
@@ -311,7 +323,7 @@ int main() {
                    
 
         // desenha PacMan
-        sprite.setOrigin({tamanhoPac/2, tamanhoPac/2});
+        sprite.setOrigin({texture.getSize().x / 2.0f, texture.getSize().y / 2.0f});
         sprite.setPosition({xdeslocamento + posxf*SIZE + SIZE/2, ydeslocamento +posyf*SIZE + SIZE/2}); //o que fizer no desenho tem que fazer aqui
         // para renderização dos espaços e a posição dele baterem
         window.draw(sprite);
