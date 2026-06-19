@@ -198,7 +198,7 @@ int main() {
         window.draw(fantasma1);
 
         // desenha paredes
-        for(int i=0;i<49;i++)
+        for(int i=0;i<42;i++)
             for(int j=0;j<42;j++) {
             if(mapa[i][j] == '1') {
                 if(mapa[i-1][j] != '1') {
