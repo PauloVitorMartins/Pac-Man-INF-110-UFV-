@@ -60,7 +60,9 @@ char mapa[42][42] = {
   "111111111111111111111111111111111111111"
 };
 const float SIZE = 20;
-const float tamanhoPac = 42;      // Tamanho de cada célula do mapa
+const float tamanhoBolinhaPequena = 3;
+const float tamanhoBolinhaGrande = 7;
+const float tamanhoPac = 48;      // Tamanho de cada célula do mapa
 float velocidade = 0.1f;
 
 int posxghost =  15;
@@ -90,10 +92,10 @@ int main() {
     // cria um quadrado de tamanho 50 (a parede)
     sf::RectangleShape quad({SIZE, SIZE});
     // cria bolinhas
-    sf::CircleShape bolinha({SIZE - 17});
+    sf::CircleShape bolinha({tamanhoBolinhaPequena});
     bolinha.setFillColor({255, 255, 255});
     //cria bolinha maior
-    sf::CircleShape BOLA({SIZE - 13});
+    sf::CircleShape BOLA({tamanhoBolinhaGrande});
     BOLA.setFillColor({255, 255, 255});
 
 
@@ -221,13 +223,13 @@ int main() {
                 }
             }
             if(mapa[i][j] == '0'){
-                bolinha.setOrigin({(SIZE - 17)/2, (SIZE-17)/2}); 
-                bolinha.setPosition({xdeslocamento + j*SIZE+10, i*SIZE+8});
+                bolinha.setOrigin({(tamanhoBolinhaPequena)/2, (tamanhoBolinhaPequena)/2}); 
+                bolinha.setPosition({xdeslocamento + j*SIZE + SIZE/2, ydeslocamento + i*SIZE + SIZE/2});
                 window.draw(bolinha);
             }
             else if(mapa[i][j] == '3'){
-                BOLA.setOrigin({(SIZE - 12)/2, (SIZE-12)/2});
-                BOLA.setPosition({xdeslocamento + j*SIZE+10, i*SIZE+8});
+                BOLA.setOrigin({(tamanhoBolinhaGrande)/2, (tamanhoBolinhaGrande)/2});
+                BOLA.setPosition({xdeslocamento + j*SIZE + SIZE/2, ydeslocamento + i*SIZE + SIZE/2});
                 window.draw(BOLA);
             }
             }
