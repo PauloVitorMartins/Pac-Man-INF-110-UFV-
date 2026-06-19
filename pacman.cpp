@@ -32,10 +32,10 @@ char mapa[42][42] = {
   "111111115051111150515051111150511111111",
   "111111115051555550555055555150511111111",
   "111111115051500000000000005150511111111",
-  "111111115051505555525555505150511111111",
-  "111111115051505111222111505150511111111",
+  "111111115051505555555555505150511111111",
+  "111111115051505111555111505150511111111",
   "555555555055505155555551505550555555555",
-  "000000000000005152222251500000000000000",
+  "988000000000005152222251500000000000889",
   "555555555055505155555551505550555555555",
   "111111115051505111111111505150511111111",
   "111111115051505555555555505150511111111",
@@ -63,7 +63,11 @@ const float SIZE = 20;
 const float tamanhoBolinhaPequena = 3;
 const float tamanhoBolinhaGrande = 7;
 const float tamanhoPac = 48;      // Tamanho de cada célula do mapa
-float velocidade = 0.1f;
+float velocidade = 0.2f;
+
+float sizeQuadBlack = SIZE*3;
+
+bool passouTunel = false;
 
 int posxghost =  15;
 int posyghost =  10;
@@ -78,6 +82,8 @@ bool baixo = false;
 bool esq = false;
 bool dir = false;
 
+bool isMoving = false;
+
 int score=0; //pontuação
 bool intencao_cima = false;
 bool intencao_baixo = false;
@@ -91,6 +97,13 @@ int main() {
 
     // cria um quadrado de tamanho 50 (a parede)
     sf::RectangleShape quad({SIZE, SIZE});
+    sf::RectangleShape quadBlack({sizeQuadBlack, sizeQuadBlack});
+    sf::RectangleShape quadBlack1({sizeQuadBlack, sizeQuadBlack});
+    quadBlack.setFillColor({0, 0, 0});
+    quadBlack1.setFillColor({0, 0, 0});
+    quadBlack.setOrigin({sizeQuadBlack/2, sizeQuadBlack/2});
+    quadBlack1.setOrigin({sizeQuadBlack/2, sizeQuadBlack/2});
+
     // cria bolinhas
     sf::CircleShape bolinha({tamanhoBolinhaPequena});
     bolinha.setFillColor({255, 255, 255});
@@ -113,6 +126,19 @@ int main() {
         return 0;
     }
     sf::Sprite sprite{texture};
+
+    sf::Texture texture1;
+    if (!texture1.loadFromFile("./sprites/pacman1.png")) {
+        std::cout << "Erro lendo imagem pacman.png\n";
+        return 0;
+    }
+
+    sf::Texture texture2;
+    if (!texture2.loadFromFile("./sprites/pacman2.png")) {
+        std::cout << "Erro lendo imagem pacman.png\n";
+        return 0;
+    }
+
     sf::Font font; //fonte
     if(!font.openFromFile("emulogic.ttf")){
         std::cout << "Erro lendo fonte emulogic\n";
@@ -121,6 +147,8 @@ int main() {
     sf::Text text(font);
     text.setPosition({0, 0});
     text.setFillColor({255, 255, 255});
+
+
     // cria um relogio para medir o tempo do PacMan
     sf::Clock relogioMovimento;
     sf::Clock relogioAnimacao;
@@ -169,12 +197,37 @@ int main() {
 
             if (intencao_cima && mapa[y-1][x] != '5') {
                 cima = true; baixo = esq = dir = false;
+                isMoving = true;
             } else if (intencao_baixo && mapa[y+1][x] != '5') {
                 baixo = true; cima = esq = dir = false;
+                isMoving = true;
             } else if (intencao_esq && mapa[y][x-1] != '5') {
                 esq = true; cima = baixo = dir = false;
+                isMoving = true;
             } else if (intencao_dir && mapa[y][x+1] != '5') {
                 dir = true; cima = baixo = esq = false;
+                isMoving = true;
+            }
+
+            if(y == 19 && x == 38 && passouTunel == false) {
+                posyf = 19;
+                posxf = 0;
+                x = 0;
+                passouTunel = true;
+            }
+
+            if(y == 19 && x == 0 && passouTunel == false) {
+                posyf = 19;
+                posxf = 38;
+                passouTunel = true;
+            }
+
+            if (y == 19 && x == 37) {
+                passouTunel = false;
+            }
+
+            if (y == 19 && x == 1) {
+                passouTunel = false;
             }
 
             if(mapa[y][x]=='0'){
@@ -186,18 +239,17 @@ int main() {
                 score+=50;
             }
             
-            if (cima && mapa[y-1][x] == '5') cima = false;
-            if (baixo && mapa[y+1][x] == '5') baixo = false;
-            if (esq && mapa[y][x-1] == '5') esq = false;
-            if (dir && mapa[y][x+1] == '5') dir = false;
+            if (cima && mapa[y-1][x] == '5') { cima = false; isMoving = false;}
+            if (baixo && mapa[y+1][x] == '5') { baixo = false; isMoving = false;}
+            if (esq && mapa[y][x-1] == '5') { esq = false; isMoving = false;}
+            if (dir && mapa[y][x+1] == '5') { dir = false; isMoving = false;}
 
             }
          
-            if (cima) posyf -= velocidade;
-            if (baixo) posyf += velocidade;
-            if (esq) posxf -= velocidade;
-            if (dir) posxf += velocidade;
-
+            if (cima) { posyf -= velocidade; sprite.setRotation(sf::degrees(270));}
+            if (baixo) { posyf += velocidade; sprite.setRotation(sf::degrees(90));}
+            if (esq) { posxf -= velocidade; sprite.setRotation(sf::degrees(180));}
+            if (dir) { posxf += velocidade; sprite.setRotation(sf::degrees(0));}
             
         // limpa a janela com a cor preta
         window.clear(sf::Color::Black);
@@ -211,7 +263,7 @@ int main() {
 
         // desenha paredes
         for(int i=0;i<42;i++)
-            for(int j=0;j<42;j++) {
+            for(int j=0;j<39;j++) {
             if(mapa[i][j] == '1') {
                 if(mapa[i-1][j] != '1') {
                 quad.setPosition({xdeslocamento + j*SIZE, i*SIZE});
@@ -243,16 +295,36 @@ int main() {
                 window.draw(BOLA);
             }
             }
-                
+        
+        if(isMoving == true) {
+            if(relogioAnimacao.getElapsedTime() < sf::seconds(0.08)) {
+                sprite.setTexture(texture1);
+            } else if (relogioAnimacao.getElapsedTime() >= sf::seconds(0.16) && relogioAnimacao.getElapsedTime() < sf::seconds(0.24)) {
+                sprite.setTexture(texture2);
+            }  else if (relogioAnimacao.getElapsedTime() >= sf::seconds(0.24)) {
+                sprite.setTexture(texture);
+                relogioAnimacao.restart();
+            }
+       } else {
+         sprite.setTexture(texture);
+       }
+                   
 
         // desenha PacMan
         sprite.setOrigin({tamanhoPac/2, tamanhoPac/2});
-         sprite.setPosition({xdeslocamento + posxf*SIZE + SIZE/2, ydeslocamento +posyf*SIZE + SIZE/2}); //o que fizer no desenho tem que fazer aqui
+        sprite.setPosition({xdeslocamento + posxf*SIZE + SIZE/2, ydeslocamento +posyf*SIZE + SIZE/2}); //o que fizer no desenho tem que fazer aqui
         // para renderização dos espaços e a posição dele baterem
         window.draw(sprite);
         //desenha o score
         text.setString(std::to_string(score));
         window.draw(text);
+
+        quadBlack.setPosition({xdeslocamento + 38*SIZE, ydeslocamento + 19*SIZE + SIZE / 2.0f});
+        window.draw(quadBlack);
+        quadBlack1.setPosition({xdeslocamento + SIZE, ydeslocamento + 19*SIZE + SIZE / 2.0f });
+        window.draw(quadBlack1);
+
+
         // termina e desenha o frame corrente
         window.display();
     }
