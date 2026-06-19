@@ -1,5 +1,6 @@
 #include <SFML/Graphics.hpp>
 #include <cmath>
+#include <cstring>
 #include <iostream>
 
 // Código base para jogo do Pac-Man usando SFML
@@ -14,6 +15,14 @@
 // 1 = Parede Azul (Tile 34x34)
 // 5 = Preenchimento Preto (Borda visual)
 // 0 = Caminho transitável (Conectado, não renderizado)
+
+sf::Texture retornaTextura(std::string s) {
+    sf::Texture texture;
+    if (!texture.loadFromFile(s)) {
+        std::cout << "Erro lendo imagem: " << s << "\n";
+    }
+    return texture;
+}
 
 const int linhas = 42;
 const int colunas = 39;
@@ -64,7 +73,7 @@ char mapa[42][40] = {
 };
 const float larguraTela = 1920.0f;
 const float alturaTela = 1080.0f;
-const float SIZE = 25;
+const float SIZE = 22;
 const float tamanhoBolinhaPequena = SIZE * 0.15f; 
 const float tamanhoBolinhaGrande = SIZE * 0.35f;
 const float tamanhoPac = SIZE * 2.4f;
@@ -119,32 +128,14 @@ int main() {
     BOLA.setFillColor({255, 255, 255});
 
 
-    sf::Texture fantasma1text;
-    if (!fantasma1text.loadFromFile("./sprites/red.png")) {
-        std::cout << "Erro lendo imagem red.png\n";
-        return 0;
-    }
-    sf::Sprite fantasma1{fantasma1text};
+    sf::Texture fantasmaRedTextura = retornaTextura("./sprites/red.png");
+    sf::Sprite fantasmaRed{fantasmaRedTextura};
 
     // sprites do PacMan
-    sf::Texture texture;
-    if (!texture.loadFromFile("./sprites/pacman.png")) {
-        std::cout << "Erro lendo imagem pacman.png\n";
-        return 0;
-    }
-    sf::Sprite sprite{texture};
-
-    sf::Texture texture1;
-    if (!texture1.loadFromFile("./sprites/pacman1.png")) {
-        std::cout << "Erro lendo imagem pacman.png\n";
-        return 0;
-    }
-
-    sf::Texture texture2;
-    if (!texture2.loadFromFile("./sprites/pacman2.png")) {
-        std::cout << "Erro lendo imagem pacman.png\n";
-        return 0;
-    }
+    sf::Texture texture = retornaTextura("./sprites/pacman.png");
+    sf::Texture texture1 = retornaTextura("./sprites/pacman1.png");
+    sf::Texture texture2 = retornaTextura("./sprites/pacman2.png");
+    sf::Sprite sprite(texture);
 
     float escalaPacman = tamanhoPac / texture.getSize().x;
     sprite.setScale({escalaPacman, escalaPacman});
@@ -268,10 +259,10 @@ int main() {
 
         // desenhar tudo aqui...
 
-        // desenha fantasma1
-        // fantasma1.setPosition({xdeslocamento + posxghost*SIZE + SIZE/2, ydeslocamento + posyghost*SIZE + SIZE/2}); //o que fizer no desenho tem que fazer aqui
+        // desenha fantasmaRed
+        // fantasmaRed.setPosition({xdeslocamento + posxghost*SIZE + SIZE/2, ydeslocamento + posyghost*SIZE + SIZE/2}); //o que fizer no desenho tem que fazer aqui
         // // para renderização dos espaços e a posição dele baterem
-        // window.draw(fantasma1);
+        // window.draw(fantasmaRed);
 
         // desenha paredes
         for(int i=0;i<linhas;i++)
