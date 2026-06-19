@@ -177,6 +177,15 @@ int main() {
                 dir = true; cima = baixo = esq = false;
             }
 
+            if(mapa[y][x]=='0'){
+                mapa[y][x]='2';
+                score+=10;
+            }
+            else if(mapa[y][x]=='3'){
+                mapa[y][x]='2';
+                score+=50;
+            }
+            
             if (cima && mapa[y-1][x] == '5') cima = false;
             if (baixo && mapa[y+1][x] == '5') baixo = false;
             if (esq && mapa[y][x-1] == '5') esq = false;
@@ -189,6 +198,7 @@ int main() {
             if (esq) posxf -= velocidade;
             if (dir) posxf += velocidade;
 
+            
         // limpa a janela com a cor preta
         window.clear(sf::Color::Black);
 
