@@ -63,6 +63,9 @@ const float SIZE = 20;      // Tamanho de cada célula do mapa
 int posx = 9; // posicao do PacMan
 int posy = 7;
 
+int posxghost =  15;
+int posyghost =  10;
+
 float posxf = 9.0f; //posicao relativa fluida
 float posyf = 7.0f; 
 float xdeslocamento = 500;
@@ -81,6 +84,14 @@ int main() {
     // cria um quadrado de tamanho 50 (a parede)
     sf::RectangleShape quad({SIZE, SIZE});
 
+
+    sf::Texture fantasma1text;
+    if (!fantasma1text.loadFromFile("./sprites/red.png")) {
+        std::cout << "Erro lendo imagem red.png\n";
+        return 0;
+    }
+    sf::Sprite fantasma1{fantasma1text};
+
     // sprites do PacMan
     sf::Texture texture;
     if (!texture.loadFromFile("./sprites/pacman.png")) {
@@ -92,6 +103,8 @@ int main() {
     // cria um relogio para medir o tempo do PacMan
     sf::Clock relogioMovimento;
     sf::Clock relogioAnimacao;
+    sf::Clock relogioMovimentofantasma;
+    sf::Clock relogioAnimacaofantasma;
 
     // executa o programa enquanto a janela está aberta
     while (window.isOpen()) {
@@ -140,10 +153,22 @@ int main() {
             if (dir && mapa[posy][posx+1] != '5') posx ++;
 
         }
+
+
+        if(relogioMovimentofantasma.getElapsedTime() > sf::seconds(0.2)) {
+            posxghost ++;
+            relogioMovimentofantasma.restart();
+        }
+
         // limpa a janela com a cor preta
         window.clear(sf::Color::Black);
 
         // desenhar tudo aqui...
+
+        // desenha fantasma1
+        fantasma1.setPosition({xdeslocamento + posxghost*SIZE + SIZE/2, ydeslocamento + posyghost*SIZE + SIZE/2}); //o que fizer no desenho tem que fazer aqui
+        // para renderização dos espaços e a posição dele baterem
+        window.draw(fantasma1);
 
         // desenha paredes
         for(int i=0;i<49;i++)
@@ -176,6 +201,9 @@ int main() {
          sprite.setPosition({xdeslocamento + posxf*SIZE - 15, ydeslocamento +posyf*SIZE}); //o que fizer no desenho tem que fazer aqui
         // para renderização dos espaços e a posição dele baterem
         window.draw(sprite);
+
+
+
 
         // termina e desenha o frame corrente
         window.display();
