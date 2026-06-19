@@ -1,4 +1,5 @@
 #include <SFML/Graphics.hpp>
+#include <cmath>
 #include <iostream>
 
 // Código base para jogo do Pac-Man usando SFML
@@ -58,10 +59,9 @@ char mapa[42][42] = {
   "155555555555555555555555555555555555551",
   "111111111111111111111111111111111111111"
 };
-const float SIZE = 20;      // Tamanho de cada célula do mapa
-
-int posx = 9; // posicao do PacMan
-int posy = 7;
+const float SIZE = 20;
+const float tamanhoPac = 42;      // Tamanho de cada célula do mapa
+float velocidade = 0.1f;
 
 int posxghost =  15;
 int posyghost =  10;
@@ -75,6 +75,11 @@ bool cima = false;  // direcao de movimento do PacMan
 bool baixo = false;
 bool esq = false;
 bool dir = false;
+
+bool intencao_cima = false;
+bool intencao_baixo = false;
+bool intencao_esq = false;
+bool intencao_dir = false;
 
 int main() {
     // cria a janela
@@ -118,42 +123,55 @@ int main() {
                   if (keyPressed->scancode == sf::Keyboard::Scancode::Escape)
                       window.close();
                   else if (keyPressed->scancode == sf::Keyboard::Scancode::Left) {
-                      esq = true;   // left key: PacMan tem intenção de se mover para esquerda
-                      dir = cima = baixo = false;
+                      intencao_esq = true;   // left key: PacMan tem intenção de se mover para esquerda
+                      intencao_dir = intencao_cima = intencao_baixo = false;
                   }
                   else if (keyPressed->scancode == sf::Keyboard::Scancode::Right) {
-                      dir = true;   // right key: PacMan tem intenção de se mover para direita
-                      esq = cima = baixo = false;
+                      intencao_dir = true;   // right key: PacMan tem intenção de se mover para direita
+                      intencao_esq = intencao_cima = intencao_baixo = false;
                   }
                   else if (keyPressed->scancode == sf::Keyboard::Scancode::Up) {
-                      cima = true;   // up key: PacMan tem intenção de se mover para cima
-                      esq = dir = baixo = false;
+                      intencao_cima = true;   // up key: PacMan tem intenção de se mover para cima
+                      intencao_esq = intencao_dir = intencao_baixo = false;
                   }
                   else if (keyPressed->scancode == sf::Keyboard::Scancode::Down) {
-                      baixo = true;   // down key: PacMan tem intenção de se mover para baixo
-                      esq = dir = cima = false;
+                      intencao_baixo = true;   // down key: PacMan tem intenção de se mover para baixo
+                      intencao_esq = intencao_dir = intencao_cima = false;
                   }
             }
         }
+            bool noCentroX = std::abs(posxf - std::round(posxf)) < 0.05f;
+            bool noCentroY = std::abs(posyf - std::round(posyf)) < 0.05f;
+
+            if (noCentroX && noCentroY) {
+
+            posxf = std::round(posxf);
+            posyf = std::round(posyf);
+
+            int x = (int)posxf;
+            int y = (int)posyf;
+
+            if (intencao_cima && mapa[y-1][x] != '5') {
+                cima = true; baixo = esq = dir = false;
+            } else if (intencao_baixo && mapa[y+1][x] != '5') {
+                baixo = true; cima = esq = dir = false;
+            } else if (intencao_esq && mapa[y][x-1] != '5') {
+                esq = true; cima = baixo = dir = false;
+            } else if (intencao_dir && mapa[y][x+1] != '5') {
+                dir = true; cima = baixo = esq = false;
+            }
+
+            if (cima && mapa[y-1][x] == '5') cima = false;
+            if (baixo && mapa[y+1][x] == '5') baixo = false;
+            if (esq && mapa[y][x-1] == '5') esq = false;
+            if (dir && mapa[y][x+1] == '5') dir = false;
+
+            }
          
-         if(relogioMovimento.getElapsedTime() > sf::seconds(0.0001)) {
-          posxf += (posx - posxf ) * 0.1f;
-          posyf += (posy - posyf) * 0.1f;
-          relogioMovimento.restart();
-         }
-
-         //posicao de renderização 
-
-        // Muda a posição do PacMan a cada 0.17 segundos
-        if(relogioAnimacao.getElapsedTime() > sf::seconds(0.17)) {
-            relogioAnimacao.restart();
-        }
-
-
-        if(relogioMovimentofantasma.getElapsedTime() > sf::seconds(0.2)) {
-            posxghost ++;
-            relogioMovimentofantasma.restart();
-        }
+            if (cima) posyf -= velocidade;
+            if (baixo) posyf += velocidade;
+            if (esq) posxf -= velocidade;
+            if (dir) posxf += velocidade;
 
         // limpa a janela com a cor preta
         window.clear(sf::Color::Black);
@@ -193,7 +211,8 @@ int main() {
                 
 
         // desenha PacMan
-         sprite.setPosition({xdeslocamento + posxf*SIZE - 15, ydeslocamento +posyf*SIZE}); //o que fizer no desenho tem que fazer aqui
+        sprite.setOrigin({tamanhoPac/2, tamanhoPac/2});
+         sprite.setPosition({xdeslocamento + posxf*SIZE + SIZE/2, ydeslocamento +posyf*SIZE + SIZE/2}); //o que fizer no desenho tem que fazer aqui
         // para renderização dos espaços e a posição dele baterem
         window.draw(sprite);
 
