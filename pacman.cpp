@@ -17,7 +17,7 @@
 char mapa[42][42] = {
   "111111111111111111111111111111111111111",
   "155555555555555555515555555555555555551",
-  "150000000000000000515000000000000000051",
+  "153000000000000000515000000000000000351",
   "150555555055555550515055555550555555051",
   "150511115051111150515051111150511115051",
   "150511115051111150515051111150511115051",
@@ -26,15 +26,15 @@ char mapa[42][42] = {
   "150555555055505555555555505550555555051",
   "150511115051505111111111505150511115051",
   "150555555051505555515555505150555555051",
-  "150000000051500000515000005150000000051",
+  "153000000051500000515000005150000000351",
   "155555555051555550515055555150555555551",
   "111111115051111150515051111150511111111",
   "111111115051555550555055555150511111111",
   "111111115051500000000000005150511111111",
-  "111111115051505555505555505150511111111",
-  "111111115051505111505111505150511111111",
-  "555555555055505155505551505550555555555",
-  "000000000000005150000051500000000000000",
+  "111111115051505555525555505150511111111",
+  "111111115051505111222111505150511111111",
+  "555555555055505155555551505550555555555",
+  "000000000000005152222251500000000000000",
   "555555555055505155555551505550555555555",
   "111111115051505111111111505150511111111",
   "111111115051505555555555505150511111111",
@@ -42,7 +42,7 @@ char mapa[42][42] = {
   "111111115051505555555555505150511111111",
   "111111115051505111111111505150511111111",
   "155555555055505555515555505550555555551",
-  "150000000000000000515000000000000000051",
+  "153000000000000000515000000000000000351",
   "150555555055555550515055555550555555051",
   "150511115051111150515051111150511115051",
   "150555515055555550555055555550515555051",
@@ -54,7 +54,7 @@ char mapa[42][42] = {
   "150555555551555550515055555155555555051",
   "150511111111111150515051111111111115051",
   "150555555555555550555055555555555555051",
-  "150000000000000000000000000000000000051",
+  "153000000000000000000000000000000000351",
   "155555555555555555555555555555555555551",
   "111111111111111111111111111111111111111"
 };
@@ -73,6 +73,7 @@ bool baixo = false;
 bool esq = false;
 bool dir = false;
 
+int score=0; //pontuação
 int main() {
     // cria a janela
     sf::RenderWindow window(sf::VideoMode({1920, 1080}), "Pac-Man", sf::State::Fullscreen);
@@ -80,7 +81,12 @@ int main() {
 
     // cria um quadrado de tamanho 50 (a parede)
     sf::RectangleShape quad({SIZE, SIZE});
-
+    // cria bolinhas
+    sf::CircleShape bolinha({SIZE - 17});
+    bolinha.setFillColor({255, 255, 255});
+    //cria bolinha maior
+    sf::CircleShape BOLA({SIZE - 13});
+    BOLA.setFillColor({255, 255, 255});
     // sprites do PacMan
     sf::Texture texture;
     if (!texture.loadFromFile("./sprites/pacman.png")) {
@@ -88,7 +94,14 @@ int main() {
         return 0;
     }
     sf::Sprite sprite{texture};
-
+    sf::Font font; //fonte
+    if(!font.openFromFile("emulogic.ttf")){
+        std::cout << "Erro lendo fonte emulogic\n";
+        return 0;
+    }
+    sf::Text text(font);
+    text.setPosition({0, 0});
+    text.setFillColor({255, 255, 255});
     // cria um relogio para medir o tempo do PacMan
     sf::Clock relogioMovimento;
     sf::Clock relogioAnimacao;
@@ -138,7 +151,15 @@ int main() {
             if (baixo && mapa[posy+1][posx] != '5') posy ++;
             if (esq && mapa[posy][posx-1] != '5') posx --;
             if (dir && mapa[posy][posx+1] != '5') posx ++;
-
+            
+            if(mapa[posy][posx]=='0'){//pontuacao
+                mapa[posy][posx]='2';
+                score+=10;
+            }
+            if(mapa[posy][posx]=='3'){//pontuacao
+                mapa[posy][posx]='2';
+                score+=50;
+            }
         }
         // limpa a janela com a cor preta
         window.clear(sf::Color::Black);
@@ -168,7 +189,16 @@ int main() {
                 window.draw(quad);
                 }
             }
-
+            if(mapa[i][j] == '0'){
+                bolinha.setOrigin({(SIZE - 17)/2, (SIZE-17)/2}); 
+                bolinha.setPosition({xdeslocamento + j*SIZE+10, i*SIZE+8});
+                window.draw(bolinha);
+            }
+            else if(mapa[i][j] == '3'){
+                BOLA.setOrigin({(SIZE - 12)/2, (SIZE-12)/2});
+                BOLA.setPosition({xdeslocamento + j*SIZE+10, i*SIZE+8});
+                window.draw(BOLA);
+            }
             }
                 
 
@@ -176,7 +206,9 @@ int main() {
          sprite.setPosition({xdeslocamento + posxf*SIZE - 15, ydeslocamento +posyf*SIZE}); //o que fizer no desenho tem que fazer aqui
         // para renderização dos espaços e a posição dele baterem
         window.draw(sprite);
-
+        //desenha o score
+        text.setString(std::to_string(score));
+        window.draw(text);
         // termina e desenha o frame corrente
         window.display();
     }
