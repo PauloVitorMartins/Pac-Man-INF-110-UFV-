@@ -83,8 +83,17 @@ float sizeQuadBlack = SIZE*3;
 
 bool passouTunel = false;
 
-int posxghost =  15;
-int posyghost =  10;
+int posxghostb =  19;
+int posyghostb =  19;
+
+int posxghosta =  18;
+int posyghosta =  18;
+
+int posxghostw =  21;
+int posyghostw =  21;
+
+int posxghostm =  25;
+int posyghostm =  24;
 
 float posxf = 9.0f; //posicao relativa fluida
 float posyf = 7.0f; 
@@ -113,6 +122,7 @@ int main() {
 
     // cria um quadrado de tamanho 50 (a parede)
     sf::RectangleShape quad({SIZE, SIZE});
+    quad.setFillColor({57, 255, 20});
     sf::RectangleShape quadBlack({sizeQuadBlack, sizeQuadBlack});
     sf::RectangleShape quadBlack1({sizeQuadBlack, sizeQuadBlack});
     quadBlack.setFillColor({0, 0, 0});
@@ -127,18 +137,49 @@ int main() {
     sf::CircleShape BOLA({tamanhoBolinhaGrande});
     BOLA.setFillColor({255, 255, 255});
 
-
-    sf::Texture fantasmaRedTextura = retornaTextura("./sprites/red.png");
-    sf::Sprite fantasmaRed{fantasmaRedTextura};
-
     // sprites do PacMan
-    sf::Texture texture = retornaTextura("./sprites/pacman.png");
-    sf::Texture texture1 = retornaTextura("./sprites/pacman1.png");
-    sf::Texture texture2 = retornaTextura("./sprites/pacman2.png");
+    sf::Texture texture = retornaTextura("./sprites/virusdireita.png");
+    sf::Texture texture1 = retornaTextura("./sprites/virusdireitagiro.png");
+    sf::Texture texture2 = retornaTextura("./sprites/virusdireitaapagado.png");
     sf::Sprite sprite(texture);
 
     float escalaPacman = tamanhoPac / texture.getSize().x;
     sprite.setScale({escalaPacman, escalaPacman});
+
+     //FANTASMAS SPRITE
+
+    sf::Texture baidutextura = retornaTextura("./sprites/baidu.png");
+    sf::Sprite fantasmabaidu{baidutextura};
+
+    sf::Texture avasttextura = retornaTextura("./sprites/avast.png");
+    sf::Sprite fantasmaavast{avasttextura};
+
+    sf::Texture wintextura = retornaTextura("./sprites/win.png");
+    sf::Sprite fantasmawin{wintextura};
+
+    sf::Texture mctextura = retornaTextura("./sprites/mc.png");
+    sf::Sprite fantasmamc{mctextura};
+
+    float escalaFantasma = tamanhoPac / baidutextura.getSize().x;
+    fantasmabaidu.setScale({escalaFantasma, escalaFantasma});
+
+    fantasmabaidu.setOrigin({baidutextura.getSize().x / 2.0f, baidutextura.getSize().y / 2.0f});
+
+    float escalaFantasma2 = tamanhoPac / avasttextura.getSize().x;
+    fantasmaavast.setScale({escalaFantasma, escalaFantasma});
+
+    fantasmabaidu.setOrigin({avasttextura.getSize().x / 2.0f, avasttextura.getSize().y / 2.0f});
+
+    float escalaFantasma3 = tamanhoPac / wintextura.getSize().x;
+    fantasmawin.setScale({escalaFantasma, escalaFantasma});
+
+    fantasmawin.setOrigin({wintextura.getSize().x / 2.0f, wintextura.getSize().y / 2.0f});
+
+    float escalaFantasma4 = tamanhoPac / mctextura.getSize().x;
+    fantasmamc.setScale({escalaFantasma, escalaFantasma});
+
+    fantasmamc.setOrigin({mctextura.getSize().x / 2.0f, mctextura.getSize().y / 2.0f});
+
 
     sf::Font font; //fonte
     if(!font.openFromFile("emulogic.ttf")){
@@ -259,10 +300,22 @@ int main() {
 
         // desenhar tudo aqui...
 
-        // desenha fantasmaRed
-        // fantasmaRed.setPosition({xdeslocamento + posxghost*SIZE + SIZE/2, ydeslocamento + posyghost*SIZE + SIZE/2}); //o que fizer no desenho tem que fazer aqui
+        // desenha fantasmabaidu
+        fantasmabaidu.setPosition({xdeslocamento + posxghostb*SIZE + SIZE/2, ydeslocamento + posyghostb*SIZE + SIZE/2}); //o que fizer no desenho tem que fazer aqui
         // // para renderização dos espaços e a posição dele baterem
-        // window.draw(fantasmaRed);
+        window.draw(fantasmabaidu);
+
+        fantasmawin.setPosition({xdeslocamento + posxghostw*SIZE + SIZE/2, ydeslocamento + posyghostw*SIZE + SIZE/2}); //o que fizer no desenho tem que fazer aqui
+        // // para renderização dos espaços e a posição dele baterem
+        window.draw(fantasmawin);
+
+        fantasmaavast.setPosition({xdeslocamento + posxghosta*SIZE + SIZE/2, ydeslocamento + posyghosta*SIZE + SIZE/2}); //o que fizer no desenho tem que fazer aqui
+        // // para renderização dos espaços e a posição dele baterem
+        window.draw(fantasmaavast);
+
+        fantasmamc.setPosition({xdeslocamento + posxghostm*SIZE + SIZE/2, ydeslocamento + posyghostm*SIZE + SIZE/2}); //o que fizer no desenho tem que fazer aqui
+        // // para renderização dos espaços e a posição dele baterem
+        window.draw(fantasmamc);
 
         // desenha paredes
         for(int i=0;i<linhas;i++)
