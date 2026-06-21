@@ -83,20 +83,20 @@ float sizeQuadBlack = SIZE*3;
 
 bool passouTunel = false;
 
-int posxghostb =  19;
+int posxghostb =  17;
 int posyghostb =  19;
 
 int posxghosta =  18;
-int posyghosta =  18;
+int posyghosta =  19;
 
-int posxghostw =  21;
-int posyghostw =  21;
+int posxghostw =  19;
+int posyghostw =  19;
 
-int posxghostm =  25;
-int posyghostm =  24;
+int posxghostm =  20;
+int posyghostm =  19;
 
-float posxf = 9.0f; //posicao relativa fluida
-float posyf = 7.0f; 
+float posxf = 19.0f; //posicao relativa fluida
+float posyf = 23.0f; 
 float xdeslocamento = (larguraTela - (colunas*SIZE))/2.0f;
 float ydeslocamento = (alturaTela - (linhas*SIZE))/2.0f;
 
