@@ -146,39 +146,59 @@ int main() {
     float escalaPacman = tamanhoPac / texture.getSize().x;
     sprite.setScale({escalaPacman, escalaPacman});
 
+
      //FANTASMAS SPRITE
 
     sf::Texture baidutextura = retornaTextura("./sprites/baidu.png");
+    sf::Texture baidutextura1 = retornaTextura("./sprites/baidu1.png");
+    sf::Texture baidutextura2 = retornaTextura("./sprites/baidu2.png");
     sf::Sprite fantasmabaidu{baidutextura};
 
     sf::Texture avasttextura = retornaTextura("./sprites/avast.png");
+    sf::Texture avasttextura1 = retornaTextura("./sprites/avast1.png");
+    sf::Texture avasttextura2 = retornaTextura("./sprites/avast2.png");
     sf::Sprite fantasmaavast{avasttextura};
 
     sf::Texture wintextura = retornaTextura("./sprites/win.png");
+    sf::Texture wintextura1 = retornaTextura("./sprites/win1.png");
+    sf::Texture wintextura2 = retornaTextura("./sprites/win2.png");
     sf::Sprite fantasmawin{wintextura};
 
     sf::Texture mctextura = retornaTextura("./sprites/mc.png");
+    sf::Texture mctextura1 = retornaTextura("./sprites/mc1.png");
+    sf::Texture mctextura2 = retornaTextura("./sprites/mc2.png");
     sf::Sprite fantasmamc{mctextura};
 
-    float escalaFantasma = tamanhoPac / baidutextura.getSize().x;
-    fantasmabaidu.setScale({escalaFantasma, escalaFantasma});
+    // Define o tamanho desejado em pixels
+    float tamanhoFantasma = 42.0f;
 
-    fantasmabaidu.setOrigin({baidutextura.getSize().x / 2.0f, baidutextura.getSize().y / 2.0f});
+    float escalaFantasma1x = tamanhoFantasma / mctextura.getSize().x;
+    float escalaFantasma1y = tamanhoFantasma / mctextura.getSize().y;
 
-    float escalaFantasma2 = tamanhoPac / avasttextura.getSize().x;
-    fantasmaavast.setScale({escalaFantasma, escalaFantasma});
+    float escalaFantasma2x = tamanhoFantasma / avasttextura.getSize().x;
+    float escalaFantasma2y = tamanhoFantasma / avasttextura.getSize().y;
 
-    fantasmabaidu.setOrigin({avasttextura.getSize().x / 2.0f, avasttextura.getSize().y / 2.0f});
+    float escalaFantasma3x = tamanhoFantasma / wintextura.getSize().x;
+    float escalaFantasma3y = tamanhoFantasma / wintextura.getSize().y;
 
-    float escalaFantasma3 = tamanhoPac / wintextura.getSize().x;
-    fantasmawin.setScale({escalaFantasma, escalaFantasma});
+    float escalaFantasma4x = tamanhoFantasma / baidutextura.getSize().x;
+    float escalaFantasma4y = tamanhoFantasma / baidutextura.getSize().y;
 
-    fantasmawin.setOrigin({wintextura.getSize().x / 2.0f, wintextura.getSize().y / 2.0f});
+    fantasmawin.setScale({escalaFantasma3x, escalaFantasma3y});
 
-    float escalaFantasma4 = tamanhoPac / mctextura.getSize().x;
-    fantasmamc.setScale({escalaFantasma, escalaFantasma});
+    fantasmabaidu.setScale({escalaFantasma4x, escalaFantasma4y});
+
+    fantasmamc.setScale({escalaFantasma1x, escalaFantasma1y});
+
+    fantasmaavast.setScale({escalaFantasma2x, escalaFantasma2y});
 
     fantasmamc.setOrigin({mctextura.getSize().x / 2.0f, mctextura.getSize().y / 2.0f});
+
+    fantasmabaidu.setOrigin({baidutextura.getSize().x / 2.0f, baidutextura.getSize().y / 2.0f});
+    
+    fantasmaavast.setOrigin({avasttextura.getSize().x / 2.0f, avasttextura.getSize().y / 2.0f});
+    
+    fantasmawin.setOrigin({wintextura.getSize().x / 2.0f, wintextura.getSize().y / 2.0f});
 
 
     sf::Font font; //fonte
@@ -299,6 +319,30 @@ int main() {
         window.clear(sf::Color::Black);
 
         // desenhar tudo aqui...
+        sf::Time tempoFantasma = relogioAnimacaofantasma.getElapsedTime();
+
+        if (tempoFantasma < sf::seconds(0.50f)) {
+            fantasmamc.setTexture(mctextura);
+            fantasmabaidu.setTexture(baidutextura);
+            fantasmaavast.setTexture(avasttextura);
+            fantasmawin.setTexture(wintextura);
+        } 
+        else if (tempoFantasma >= sf::seconds(0.50f) && tempoFantasma < sf::seconds(1.00f)) {
+            fantasmamc.setTexture(mctextura1);
+            fantasmabaidu.setTexture(baidutextura1);
+            fantasmaavast.setTexture(avasttextura1);
+            fantasmawin.setTexture(wintextura1);
+        } 
+        else if (tempoFantasma >= sf::seconds(1.00f) && tempoFantasma < sf::seconds(1.50f)) {
+            fantasmamc.setTexture(mctextura2);
+            fantasmabaidu.setTexture(baidutextura2);
+            fantasmaavast.setTexture(avasttextura2);
+            fantasmawin.setTexture(wintextura2);
+        } 
+        else if (tempoFantasma >= sf::seconds(1.50)) {
+            // Reseta o relógio UMA ÚNICA VEZ para o loop recomeçar
+            relogioAnimacaofantasma.restart();
+        }
 
         // desenha fantasmabaidu
         fantasmabaidu.setPosition({xdeslocamento + posxghostb*SIZE + SIZE/2, ydeslocamento + posyghostb*SIZE + SIZE/2}); //o que fizer no desenho tem que fazer aqui
