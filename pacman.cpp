@@ -2,6 +2,7 @@
 #include <cmath>
 #include <cstring>
 #include <iostream>
+#include <cstdlib>
 
 // Código base para jogo do Pac-Man usando SFML
 // Mapa desenhado:        André Gustavo   15/06/23
@@ -114,6 +115,7 @@ bool intencao_cima = false;
 bool intencao_baixo = false;
 bool intencao_esq = false;
 bool intencao_dir = false;
+
 
 int main() {
     // cria a janela
@@ -397,19 +399,36 @@ int main() {
             }
         
         if(isMoving == true) {
-            if(relogioAnimacao.getElapsedTime() < sf::seconds(0.08)) {
+            
+            if(relogioAnimacao.getElapsedTime() < sf::seconds(0.15f)) {
                 sprite.setTexture(texture1);
-            } else if (relogioAnimacao.getElapsedTime() >= sf::seconds(0.16) && relogioAnimacao.getElapsedTime() < sf::seconds(0.24)) {
+            } 
+            
+            else if (relogioAnimacao.getElapsedTime() >= sf::seconds(0.30f) && relogioAnimacao.getElapsedTime() < sf::seconds(0.45f)) {
                 sprite.setTexture(texture2);
-            }  else if (relogioAnimacao.getElapsedTime() >= sf::seconds(0.24)) {
+            } 
+            
+            else if (relogioAnimacao.getElapsedTime() >= sf::seconds(0.45f) && relogioAnimacao.getElapsedTime() < sf::seconds(0.60f)) {
                 sprite.setTexture(texture);
+            } 
+            // Reseta o relógio
+            else if (relogioAnimacao.getElapsedTime() >= sf::seconds(0.75f)) {
                 relogioAnimacao.restart();
             }
        } else {
-         sprite.setTexture(texture);
+         sprite.setTexture(texture2);
        }
                    
-
+       // Verifique se passou tempo suficiente para os fantasmas andarem
+       // if (relogioMovimentofantasma.getElapsedTime().asSeconds() > 0.3f) {
+       //     moverFantasmaRandom(posxghostb, posyghostb, mapa);
+       //     moverFantasmaRandom(posxghosta, posyghosta, mapa);
+       //     moverFantasmaRandom(posxghostw, posyghostw, mapa);
+       //     moverFantasmaRandom(posxghostm, posyghostm, mapa);
+    
+    // Zera o relógio para o próximo ciclo
+    //relogioMovimentofantasma.restart();
+//}
         // desenha PacMan
         sprite.setOrigin({texture.getSize().x / 2.0f, texture.getSize().y / 2.0f});
         sprite.setPosition({xdeslocamento + posxf*SIZE + SIZE/2, ydeslocamento +posyf*SIZE + SIZE/2}); //o que fizer no desenho tem que fazer aqui
