@@ -6,19 +6,6 @@
 #include <vector>
 #include <iostream>
 
-// Código base para jogo do Pac-Man usando SFML
-// Mapa desenhado:        André Gustavo   15/06/23
-// Movimentos Pac-Man:    André Gustavo   15/06/23
-// Movimento contínuo:    André Gustavo   16/06/23
-// Colisão com paredes:   não implementada
-// Intenção de movimento: não implementado
-// Atualizado para 3.1.0: André Gustavo   03/06/26
-// Mapa Clássico do Pac-Man (Recriado com Padding)
-// Dimensões: 31 linhas x 29 colunas
-// 1 = Parede Azul (Tile 34x34)
-// 5 = Preenchimento Preto (Borda visual)
-// 0 = Caminho transitável (Conectado, não renderizado)
-
 sf::Texture retornaTextura(std::string s) {
     sf::Texture texture;
     if (!texture.loadFromFile(s)) {
