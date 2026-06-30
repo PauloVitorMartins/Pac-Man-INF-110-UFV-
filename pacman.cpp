@@ -387,7 +387,7 @@ int main() {
         bool noCentroXM = std::abs(posxf_ghostm - std::round(posxf_ghostm)) < tolerancia;
         bool noCentroYM = std::abs(posyf_ghostm - std::round(posyf_ghostm)) < tolerancia;
 
-if (!isOutQuadradoW) {
+        if (!isOutQuadradoW) {
             posyf_ghostw -= velocidade; 
             if (posyf_ghostw <= 15.0f) {
                 posyf_ghostw = 15.0f;     
@@ -395,7 +395,6 @@ if (!isOutQuadradoW) {
                 dirW = 2;             
             }
         } else {
-            // Avalia as opções no centro do bloco
             if (noCentroXW && noCentroYW) {
         
                 posxf_ghostw = std::round(posxf_ghostw);
@@ -404,7 +403,6 @@ if (!isOutQuadradoW) {
                 int xw = (int)posxf_ghostw;
                 int yw = (int)posyf_ghostw;
                 
-                // CORREÇÃO DO TÚNEL PARA O WIN
                 if (yw == 19 && xw <= 0 && dirW == 2) {
                     posxf_ghostw = 38.0f;
                     xw = 38;
@@ -474,10 +472,10 @@ if (!isOutQuadradoW) {
             int ym = (int)posyf_ghostm;
             
             if (ym == 19 && xm <= 0 && dirM == 2) {
-                posxf_ghostb = 38.0f;
+                posxf_ghostm = 38.0f;
                 xm = 38;
             } else if (ym == 19 && xm >= 38 && dirM == 3) {
-                posxf_ghostw = 0.0f;
+                posxf_ghostm = 0.0f;
                 xm = 0;
             }
 
