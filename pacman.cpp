@@ -104,12 +104,22 @@ int dirBaidu = 0;
 bool isOutQuadradoA = false;
 int dirAvast = 0;
 
+bool isOutQuadradoW = false;
+int dirW = 0;
+
+bool isOutQuadradoM = false;
+int dirM = 0;
+
 float posxf = 19.0f; //posicao relativa fluida
 float posyf = 23.0f;
 float posxf_ghostb = 16.0f;
 float posyf_ghostb = 19.0f;
 float posxf_ghosta = 18.0f;
 float posyf_ghosta = 19.0f;
+float posxf_ghostw = 20.0f;
+float posyf_ghostw = 19.0f;
+float posxf_ghostm = 22.0f;
+float posyf_ghostm = 19.0f;
 float xdeslocamento = (larguraTela - (colunas*SIZE))/2.0f;
 float ydeslocamento = (alturaTela - (linhas*SIZE))/2.0f;
 
@@ -222,7 +232,6 @@ int main() {
     sf::Text text(font);
     text.setPosition({0, 0});
     text.setFillColor({255, 255, 255});
-
 
     // cria um relogio para medir o tempo do PacMan
     sf::Clock relogioMovimento;
@@ -367,7 +376,7 @@ int main() {
         fantasmabaidu.setPosition({xdeslocamento + posxf_ghostb*SIZE + SIZE/2, ydeslocamento + posyf_ghostb*SIZE + SIZE/2});
         window.draw(fantasmabaidu);
 
-        fantasmawin.setPosition({xdeslocamento + posxghostw*SIZE + SIZE/2, ydeslocamento + posyghostw*SIZE + SIZE/2}); //o que fizer no desenho tem que fazer aqui
+        fantasmawin.setPosition({xdeslocamento + posxf_ghostw*SIZE + SIZE/2, ydeslocamento + posyf_ghostw*SIZE + SIZE/2}); //o que fizer no desenho tem que fazer aqui
         // // para renderização dos espaços e a posição dele baterem
         window.draw(fantasmawin);
 
@@ -375,7 +384,7 @@ int main() {
         // // para renderização dos espaços e a posição dele baterem
         window.draw(fantasmaavast);
 
-        fantasmamc.setPosition({xdeslocamento + posxghostm*SIZE + SIZE/2, ydeslocamento + posyghostm*SIZE + SIZE/2}); //o que fizer no desenho tem que fazer aqui
+        fantasmamc.setPosition({xdeslocamento + posxf_ghostm*SIZE + SIZE/2, ydeslocamento + posyf_ghostm*SIZE + SIZE/2}); //o que fizer no desenho tem que fazer aqui
         // // para renderização dos espaços e a posição dele baterem
         window.draw(fantasmamc);
 
@@ -384,6 +393,150 @@ int main() {
 
         bool noCentroXA = std::abs(posxf_ghosta - std::round(posxf_ghosta)) < tolerancia;
         bool noCentroYA = std::abs(posyf_ghosta - std::round(posyf_ghosta)) < tolerancia;
+
+        bool noCentroXW = std::abs(posxf_ghostw - std::round(posxf_ghostw)) < tolerancia;
+        bool noCentroYW = std::abs(posyf_ghostw - std::round(posyf_ghostw)) < tolerancia;
+
+        bool noCentroXM = std::abs(posxf_ghostm - std::round(posxf_ghostm)) < tolerancia;
+        bool noCentroYM = std::abs(posyf_ghostm - std::round(posyf_ghostm)) < tolerancia;
+
+if (!isOutQuadradoW) {
+            posyf_ghostw -= velocidade; 
+            if (posyf_ghostw <= 15.0f) {
+                posyf_ghostw = 15.0f;     
+                isOutQuadradoW = true;    
+                dirW = 2;             
+            }
+        } else {
+            // Avalia as opções no centro do bloco
+            if (noCentroXW && noCentroYW) {
+        
+                posxf_ghostw = std::round(posxf_ghostw);
+                posyf_ghostw = std::round(posyf_ghostw);
+            
+                int xw = (int)posxf_ghostw;
+                int yw = (int)posyf_ghostw;
+                
+                // CORREÇÃO DO TÚNEL PARA O WIN
+                if (yw == 19 && xw <= 0 && dirW == 2) {
+                    posxf_ghostw = 38.0f;
+                    xw = 38;
+                } else if (yw == 19 && xw >= 38 && dirW == 3) {
+                    posxf_ghostw = 0.0f;
+                    xw = 0;
+                }
+
+                int direcaoOposta = -1;
+                if (dirW == 0) direcaoOposta = 1; 
+                if (dirW == 1) direcaoOposta = 0; 
+                if (dirW == 2) direcaoOposta = 3; 
+                if (dirW == 3) direcaoOposta = 2; 
+
+                int direcoesValidas[4];
+                int numDirecoes = 0; 
+            
+                if (mapa[yw-1][xw] != '5' && direcaoOposta != 0) {
+                    direcoesValidas[numDirecoes] = 0; 
+                    numDirecoes++;
+                }
+                if (mapa[yw+1][xw] != '5' && direcaoOposta != 1) {
+                    direcoesValidas[numDirecoes] = 1; 
+                    numDirecoes++;
+                }
+                if (mapa[yw][xw-1] != '5' && direcaoOposta != 2) {
+                    direcoesValidas[numDirecoes] = 2; 
+                    numDirecoes++;
+                }
+                if (mapa[yw][xw+1] != '5' && direcaoOposta != 3) {
+                    direcoesValidas[numDirecoes] = 3; 
+                    numDirecoes++;
+                }
+
+                if (numDirecoes == 0) {
+                    direcoesValidas[0] = direcaoOposta;
+                    numDirecoes = 1;
+                }
+
+                int indiceSorteado = rand() % numDirecoes;
+                dirW = direcoesValidas[indiceSorteado];
+            }
+
+            // Aplica o movimento
+            if (dirW == 0) posyf_ghostw -= velocidade;
+            if (dirW == 1) posyf_ghostw += velocidade;
+            if (dirW == 2) posxf_ghostw -= velocidade;
+            if (dirW == 3) posxf_ghostw += velocidade;
+        }
+
+        if (!isOutQuadradoM) {
+            posyf_ghostm -= velocidade; 
+            if (posyf_ghostm <= 15.0f) {
+                posyf_ghostm = 15.0f;     
+                isOutQuadradoM = true;    
+                dirM = 2;             
+            }
+        } else {
+        // TODA A VEZ que ele entra no centro de um novo bloco, ele avalia as opções
+            if (noCentroXM && noCentroYM) {
+        
+            // Trava no centro exato para evitar desvios igual a logica q fiz do pacman
+            posxf_ghostm = std::round(posxf_ghostm);
+            posyf_ghostm = std::round(posyf_ghostm);
+        
+            int xm = (int)posxf_ghostm;
+            int ym = (int)posyf_ghostm;
+            
+            if (ym == 19 && xm <= 0 && dirM == 2) {
+                posxf_ghostb = 38.0f;
+                xm = 38;
+            } else if (ym == 19 && xm >= 38 && dirM == 3) {
+                posxf_ghostw = 0.0f;
+                xm = 0;
+            }
+
+            // ta memorizando a direcao oposta (de onde ele veio) para NUNCA dar meia-volta
+            int direcaoOposta = -1;
+            if (dirM == 0) direcaoOposta = 1; // Se vai para cima, não pode voltar para baixo
+            if (dirM == 1) direcaoOposta = 0; // Se vai para baixo, não pode voltar para cima
+            if (dirM == 2) direcaoOposta = 3; // Se vai para a esq, não pode voltar para a dir
+            if (dirM == 3) direcaoOposta = 2; // Se vai para a dir, não pode voltar para a esq
+
+            int direcoesValidas[4];
+            int numDirecoes = 0; // Contador de quantas rotas estão livres
+        
+
+            if (mapa[ym-1][xm] != '5' && direcaoOposta != 0) {
+                direcoesValidas[numDirecoes] = 0; // Cima
+                numDirecoes++;
+            }
+            if (mapa[ym+1][xm] != '5' && direcaoOposta != 1) {
+                direcoesValidas[numDirecoes] = 1; // Baixo
+                numDirecoes++;
+            }
+            if (mapa[ym][xm-1] != '5' && direcaoOposta != 2) {
+                direcoesValidas[numDirecoes] = 2; // Esquerda
+                numDirecoes++;
+            }
+            if (mapa[ym][xm+1] != '5' && direcaoOposta != 3) {
+                direcoesValidas[numDirecoes] = 3; // Direita
+                numDirecoes++;
+            }
+
+            if (numDirecoes == 0) {
+                direcoesValidas[0] = direcaoOposta;
+                numDirecoes = 1;
+            }
+
+
+            int indiceSorteado = rand() % numDirecoes;
+            dirM = direcoesValidas[indiceSorteado];
+            }
+
+            if (dirM == 0) posyf_ghostm -= velocidade;
+            if (dirM == 1) posyf_ghostm += velocidade;
+            if (dirM == 2) posxf_ghostm -= velocidade;
+            if (dirM == 3) posxf_ghostm += velocidade;
+    }
 
 
         if (!isOutQuadradoB) {
