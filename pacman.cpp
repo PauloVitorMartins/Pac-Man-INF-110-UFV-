@@ -873,7 +873,8 @@ int main() {
             if (dirAvast == 1) posyf_ghosta += velocidade;
             if (dirAvast == 2) posxf_ghosta -= velocidade;
             if (dirAvast == 3) posxf_ghosta += velocidade;
-    } 
+    }
+} 
         sf::Time tempospawnfruta = TempoSpawnFrutas.getElapsedTime();
 
         // desenha paredes
@@ -1141,7 +1142,7 @@ int main() {
         // termina e desenha o frame corrente
         window.display();
     
-    }
+}
 
     return 0;
 }
