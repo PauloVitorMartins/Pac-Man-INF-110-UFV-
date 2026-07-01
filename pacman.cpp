@@ -313,6 +313,8 @@ int main() {
 
                         velocidade = 0.16f;
 
+                        nivel = 1;
+
         
                         for(int i = 0; i < linhas; i++) {
                             for(int j = 0; j < colunas; j++) {
