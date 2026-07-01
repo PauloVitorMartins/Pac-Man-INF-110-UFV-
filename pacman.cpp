@@ -90,6 +90,7 @@ const float alturaTela = 1080.0f;
 const float SIZE = 22;
 const float tamanhoBolinhaPequena = SIZE * 0.15f; 
 const float tamanhoBolinhaGrande = SIZE * 0.35f;
+const float tamanhoDaFruta = SIZE;
 const float tamanhoPac = SIZE * 2.4f;
 float velocidade = 0.16f;
 float velocidadePacMan = 0.2f;
@@ -119,6 +120,13 @@ int posyghostw =  19;
 
 int posxghostm =  22;
 int posyghostm =  19;
+
+int posxfruit;
+int posyfruit;
+int berryeat=0;
+int orangeeat=0;
+int meloneat=0;
+bool berryhud=false, melonhud=false, orangehud=false;
 
 bool isOutQuadradoB = false;
 int dirBaidu = 0;
@@ -232,6 +240,18 @@ int main() {
     sf::Texture mctextura2 = retornaTextura("./sprites/mc2.png");
     sf::Sprite fantasmamc{mctextura};
 
+    //FRUTAS SPRITE
+
+    sf::Texture berrytextura = retornaTextura("./sprites/frutaberry.png");
+    sf::Texture orangetextura = retornaTextura("./sprites/frutaorange.png");
+    sf::Texture melontextura = retornaTextura("./sprites/frutamelon.png");
+    sf::Sprite melon{melontextura};
+    sf::Sprite orange{orangetextura};
+    sf::Sprite berry{berrytextura};
+    sf::Sprite berryh{berrytextura};
+    sf::Sprite melonh{melontextura};
+    sf::Sprite orangeh{orangetextura};
+
     // Define o tamanho desejado em pixels
     float tamanhoFantasma = SIZE*1.9f;
 
@@ -271,6 +291,9 @@ int main() {
     }
     sf::Text text(font);
     sf::Text start(font, "PRESS ENTER TO START!", tamanhoFonteStart);
+    sf::Text count1(font);
+    sf::Text count2(font);
+    sf::Text count3(font);
     auto tamanhoRealStart = start.getLocalBounds();
     start.setOrigin({tamanhoRealStart.size.x/2.0f, tamanhoRealStart.size.y/2});
     start.setPosition({larguraTela/2.0f, alturaTela/2.0f});
@@ -288,6 +311,7 @@ int main() {
     sf::Clock relogioMovimentofantasma;
     sf::Clock relogioAnimacaofantasma;
     sf::Clock relogioTextoPiscando;
+    sf::Clock TempoSpawnFrutas;
 
     srand(time(NULL));
 
@@ -467,6 +491,27 @@ int main() {
                 isPoweredUp = true;
                 relogioPowerUp.restart();
                 score+=50;
+            }
+            else if(mapa[y][x]=='6'){
+                mapa[y][x]='2';
+                score+=150;
+                berryeat++;
+                if(!berryhud)
+                    berryhud=true;
+            }
+            else if(mapa[y][x]=='7'){
+                mapa[y][x]='2';
+                score+=160;
+                meloneat++;
+                if(!melonhud)
+                    melonhud=true;
+            }
+            else if(mapa[y][x]=='9'){
+                mapa[y][x]='2';
+                score+=170;
+                orangeeat++;
+                if(!orangehud)
+                    orangehud=true;
             }
             
             if (cima && mapa[y-1][x] == '5') { cima = false; isMoving = false;}
@@ -828,9 +873,8 @@ int main() {
             if (dirAvast == 1) posyf_ghosta += velocidade;
             if (dirAvast == 2) posxf_ghosta -= velocidade;
             if (dirAvast == 3) posxf_ghosta += velocidade;
-    }
-    }
-
+    } 
+        sf::Time tempospawnfruta = TempoSpawnFrutas.getElapsedTime();
 
         // desenha paredes
         for(int i=0;i<linhas;i++)
@@ -865,17 +909,65 @@ int main() {
                 BOLA.setPosition({xdeslocamento + j*SIZE + SIZE/2, ydeslocamento + i*SIZE + SIZE/2});
                 window.draw(BOLA);
             }
+            else if(mapa[i][j] == '6'){
+                berry.setOrigin({tamanhoDaFruta, tamanhoDaFruta});
+                berry.setPosition({xdeslocamento + j*SIZE + SIZE/2, ydeslocamento + i*SIZE + SIZE/2});
+                berry.setScale(sf::Vector2f(0.5f, 0.5f));
+                window.draw(berry);
+            }
+            else if(mapa[i][j] == '7'){
+                melon.setOrigin({tamanhoDaFruta, tamanhoDaFruta});
+                melon.setPosition({xdeslocamento + j*SIZE + SIZE/2, ydeslocamento + i*SIZE + SIZE/2});
+                melon.setScale(sf::Vector2f(0.5f, 0.5f));
+                window.draw(melon);
+            }
+            else if(mapa[i][j] == '9'){
+                orange.setOrigin({tamanhoDaFruta, tamanhoDaFruta});
+                orange.setPosition({xdeslocamento + j*SIZE + SIZE/2, ydeslocamento + i*SIZE + SIZE/2});
+                orange.setScale(sf::Vector2f(0.5f, 0.5f));
+                window.draw(orange);
             }
         
+           sf::Time tempospawnfruta = TempoSpawnFrutas.getElapsedTime();
+           char opcoesFrutas[] = {'6', '7', '9'};
+           if (tempospawnfruta >= sf::seconds(40.f)) {
+           TempoSpawnFrutas.restart(); 
+           tempospawnfruta = sf::Time::Zero; 
+           bool frutaPosicionada = false;
+           int tentativas = 0;
+           while (!frutaPosicionada && tentativas < 100) {
+           int posxfruit = rand() % 40; 
+           int posyfruit = rand() % 40; 
+           if (mapa[posyfruit][posxfruit] == '2') {
+               int indiceAleatorio = rand() % 3;
+               mapa[posyfruit][posxfruit] = opcoesFrutas[indiceAleatorio];
+               frutaPosicionada = true;
+           }
+           tentativas++;
+           }
+           }
+            
+           }
+        
         if(isMoving == true) {
-            if(relogioAnimacao.getElapsedTime() < sf::seconds(0.08)) {
-                sprite.setTexture(texture1, true);
-            } else if (relogioAnimacao.getElapsedTime() >= sf::seconds(0.16) && relogioAnimacao.getElapsedTime() < sf::seconds(0.24)) {
-                sprite.setTexture(texture2, true);
-            }  else if (relogioAnimacao.getElapsedTime() >= sf::seconds(0.24)) {
-                sprite.setTexture(texture, true);
+            
+            if(relogioAnimacao.getElapsedTime() < sf::seconds(0.15f)) {
+                sprite.setTexture(texture1);
+            } 
+            
+            else if (relogioAnimacao.getElapsedTime() >= sf::seconds(0.30f) && relogioAnimacao.getElapsedTime() < sf::seconds(0.45f)) {
+                sprite.setTexture(texture2);
+            } 
+            
+            else if (relogioAnimacao.getElapsedTime() >= sf::seconds(0.45f) && relogioAnimacao.getElapsedTime() < sf::seconds(0.60f)) {
+                sprite.setTexture(texture);
+            } 
+            // Reseta o relógio
+            else if (relogioAnimacao.getElapsedTime() >= sf::seconds(0.75f)) {
                 relogioAnimacao.restart();
             }
+       } else {
+         sprite.setTexture(texture2);
        }
        
        if (isPoweredUp) {
@@ -899,7 +991,16 @@ int main() {
             }
         }
                    
-
+       // Verifique se passou tempo suficiente para os fantasmas andarem
+       // if (relogioMovimentofantasma.getElapsedTime().asSeconds() > 0.3f) {
+       //     moverFantasmaRandom(posxghostb, posyghostb, mapa);
+       //     moverFantasmaRandom(posxghosta, posyghosta, mapa);
+       //     moverFantasmaRandom(posxghostw, posyghostw, mapa);
+       //     moverFantasmaRandom(posxghostm, posyghostm, mapa);
+    
+    // Zera o relógio para o próximo ciclo
+    //relogioMovimentofantasma.restart();
+//}
         // desenha PacMan
         float texturaAtualX = sprite.getTexture().getSize().x;
         float texturaAtualY = sprite.getTexture().getSize().y;
