@@ -3,7 +3,6 @@
 #include <cstring>
 #include <cstdlib>
 #include <ctime>
-#include <vector>
 #include <iostream>
 #include <string>
 
@@ -38,7 +37,7 @@ char mapa[42][40] = {
   "111111115051505555555555505150511111111",
   "111111115051505111555111505150511111111",
   "555555555055505155555551505550555555555",
-  "988000000000005152222251500000000000889",
+  "988000000000005158888851500000000000889",
   "555555555055505155555551505550555555555",
   "111111115051505111111111505150511111111",
   "111111115051505555555555505150511111111",
@@ -73,6 +72,8 @@ float velocidade = 0.2f;
 float sizeQuadBlack = SIZE*3;
 
 bool passouTunel = false;
+
+int maxScore = 0;
 
 int posxghostb =  16;
 int posyghostb =  19;
@@ -111,6 +112,9 @@ float posyf_ghostm = 19.0f;
 float xdeslocamento = (larguraTela - (colunas*SIZE))/2.0f;
 float ydeslocamento = (alturaTela - (linhas*SIZE))/2.0f;
 
+float tamanhoFonteStart = SIZE*1.8f;
+float tamanhoFonteGameOver = SIZE*2.72f;
+
 float espessuraParede = SIZE * 0.1f;
 
 bool cima = false;  // direcao de movimento do PacMan
@@ -125,7 +129,6 @@ bool intencao_cima = false;
 bool intencao_baixo = false;
 bool intencao_esq = false;
 bool intencao_dir = false;
-bool GAME=false;
 bool closexavast=false, closexbaidu=false, closexwin=false, closexmc=false;
 bool closeyavast=false,closeybaidu=false, closeywin=false, closeymc=false;
 int gamestatus=0;
@@ -184,7 +187,7 @@ int main() {
     sf::Sprite fantasmamc{mctextura};
 
     // Define o tamanho desejado em pixels
-    float tamanhoFantasma = 42.0f;
+    float tamanhoFantasma = SIZE*1.9f;
 
     float escalaFantasma1x = tamanhoFantasma / mctextura.getSize().x;
     float escalaFantasma1y = tamanhoFantasma / mctextura.getSize().y;
@@ -221,8 +224,10 @@ int main() {
         return 0;
     }
     sf::Text text(font);
-    sf::Text start(font, "PRESS ENTER TO START!", 50);
-    start.setPosition({500, 500});
+    sf::Text start(font, "PRESS ENTER TO START!", tamanhoFonteStart);
+    auto tamanhoRealStart = start.getLocalBounds();
+    start.setOrigin({tamanhoRealStart.size.x/2.0f, tamanhoRealStart.size.y/2});
+    start.setPosition({larguraTela/2.0f, alturaTela/2.0f});
     text.setFillColor({255, 255, 255});
     text.setPosition({0, 0});
     start.setFillColor({255, 255, 255});
@@ -248,29 +253,68 @@ int main() {
             else if (const auto* keyPressed = event->getIf<sf::Event::KeyPressed>()) {
                   if (keyPressed->scancode == sf::Keyboard::Scancode::Escape)
                       window.close();
-                  else if (keyPressed->scancode == sf::Keyboard::Scancode::Left && GAME) {
+                  else if (keyPressed->scancode == sf::Keyboard::Scancode::Left) {
                       intencao_esq = true;   // left key: PacMan tem intenção de se mover para esquerda
                       intencao_dir = intencao_cima = intencao_baixo = false;
                   }
-                  else if (keyPressed->scancode == sf::Keyboard::Scancode::Right && GAME) {
+                  else if (keyPressed->scancode == sf::Keyboard::Scancode::Right) {
                       intencao_dir = true;   // right key: PacMan tem intenção de se mover para direita
                       intencao_esq = intencao_cima = intencao_baixo = false;
                   }
-                  else if (keyPressed->scancode == sf::Keyboard::Scancode::Up && GAME) {
+                  else if (keyPressed->scancode == sf::Keyboard::Scancode::Up) {
                       intencao_cima = true;   // up key: PacMan tem intenção de se mover para cima
                       intencao_esq = intencao_dir = intencao_baixo = false;
                   }
-                  else if (keyPressed->scancode == sf::Keyboard::Scancode::Down && GAME) {
+                  else if (keyPressed->scancode == sf::Keyboard::Scancode::Down) {
                       intencao_baixo = true;   // down key: PacMan tem intenção de se mover para baixo
                       intencao_esq = intencao_dir = intencao_cima = false;
                   }
-                  if(keyPressed->scancode == sf::Keyboard::Scancode::Enter && !GAME && gamestatus==0){ 
-                    GAME = true;
-                    gamestatus=1;
-                  }
+                if (keyPressed->scancode == sf::Keyboard::Scancode::Enter) {
+                        if (gamestatus == 0 || gamestatus == 2) { 
+                        score = 0;
+                        isOutQuadradoB = isOutQuadradoA = isOutQuadradoW = isOutQuadradoM = false;
+                        passouTunel = false;
+                        isMoving = false;
+                        intencao_cima = intencao_baixo = intencao_esq = intencao_dir = false;
+                        cima = baixo = esq = dir = false;
+
+                        posxf = 19.0f; posyf = 23.0f;
+                        posxf_ghostb = 16.0f; posyf_ghostb = 19.0f;
+                        posxf_ghosta = 18.0f; posyf_ghosta = 19.0f;
+                        posxf_ghostw = 20.0f; posyf_ghostw = 19.0f;
+                        posxf_ghostm = 22.0f; posyf_ghostm = 19.0f;
+
+        
+                        for(int i = 0; i < linhas; i++) {
+                            for(int j = 0; j < colunas; j++) {
+                                if (mapa[i][j] == '2') mapa[i][j] = '0';
+                            }
+                        }
+
+                        mapa[2][2] = '3';
+                        mapa[2][36] = '3';
+                        mapa[27][2] = '3';
+                        mapa[27][36] = '3';
+                        gamestatus = 1;
+                    }
+                }
             }
         }
-        if(GAME){
+
+        static bool showText = true;
+            if (relogioTextoPiscando.getElapsedTime().asSeconds() > 0.5f) {
+                showText = !showText;
+            relogioTextoPiscando.restart();
+            }
+
+        window.clear(sf::Color::Black);
+
+        if (gamestatus == 0) {
+            if (showText) {
+                window.draw(start);
+            }
+        } 
+        else if (gamestatus == 1) {
             
             float tolerancia = velocidade * 0.55f;
             bool noCentroX = std::abs(posxf - std::round(posxf)) < tolerancia;
@@ -662,7 +706,7 @@ int main() {
             if (dirAvast == 2) posxf_ghosta -= velocidade;
             if (dirAvast == 3) posxf_ghosta += velocidade;
     } 
-}
+
         // desenha paredes
         for(int i=0;i<linhas;i++)
             for(int j=0;j<colunas;j++) {
@@ -741,9 +785,7 @@ int main() {
         window.draw(quadBlack);
         quadBlack1.setPosition({xdeslocamento + SIZE, ydeslocamento + 19*SIZE + SIZE / 2.0f });
         window.draw(quadBlack1);
-        if(!GAME)
-            if(gamestatus==0)
-                window.draw(start);
+
         //verifica se o pacman esta encostado no baidu
         if (std::abs(posxf - posxf_ghostb) < 0.2f && std::abs(posyf - posyf_ghostb) < 0.2f) {
              closexbaidu = true;
@@ -776,14 +818,39 @@ int main() {
             closexwin = false;
             closeywin = false;
         }
-        if(closexavast && closeyavast)
-            GAME = false; 
-        if(closexbaidu && closeybaidu)
-            GAME =false;
-        if(closexmc && closeymc)
-            GAME = false;
-        if(closexwin && closeywin)
-            GAME = false;
+        if (closexavast && closeyavast || closexbaidu && closeybaidu || 
+                closexwin && closeywin || closexmc && closeymc) {
+                
+                gamestatus = 2; // Muda para a tela de Game Over
+                if (score > maxScore) {
+                    maxScore = score; // Atualiza o histórico
+                }
+            }
+
+
+    } else if (gamestatus == 2) {
+
+            sf::Text gameOverText(font, "GAME OVER",  tamanhoFonteGameOver);
+            gameOverText.setFillColor({255, 0, 0});
+            auto tamanhoRealGameOver = gameOverText.getLocalBounds();
+            gameOverText.setOrigin({tamanhoRealGameOver.size.x/2.0f, tamanhoRealGameOver.size.y/2.0f});
+            gameOverText.setPosition({(larguraTela / 2.0f), (alturaTela / 2.0f)});
+            
+            std::string pontuacaoStr = "SCORE: " + std::to_string(score) + "   MAX: " + std::to_string(maxScore);
+            sf::Text scoreText(font, pontuacaoStr, tamanhoFonteGameOver/2);
+            scoreText.setFillColor({255, 255, 255});
+            auto tamanhoRealScore = scoreText.getLocalBounds();
+            scoreText.setOrigin({tamanhoRealScore.size.x/2.0f, tamanhoRealScore.size.y/2.0f});
+            scoreText.setPosition({(larguraTela / 2.0f), (alturaTela / 2.0f) + tamanhoRealGameOver.size.y});
+
+            window.draw(gameOverText);
+            window.draw(scoreText);
+
+            if (showText) {
+                start.setPosition({larguraTela/2.0f, alturaTela/2.0f + tamanhoRealGameOver.size.y + tamanhoRealScore.size.y*2});
+                window.draw(start);
+            }
+        }
         
         // termina e desenha o frame corrente
         window.display();
