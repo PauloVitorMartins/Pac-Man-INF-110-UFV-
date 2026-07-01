@@ -358,7 +358,7 @@ int main() {
                         }
 
                         if (nivel >= 3) {
-                            velocidade += 0.02f;
+                            velocidade += 0.01f;
                         }
 
                         mapa[2][2] = '3';
