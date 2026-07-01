@@ -6,6 +6,7 @@
 #include <fstream> //usada para ler arquivos
 #include <ostream> //usada para escrever arquivos
 #include <iostream>
+#include <SFML/Audio.hpp>
 #include <string>
 
 std::string arquiv = "save";
@@ -50,7 +51,7 @@ char mapa[42][40] = {
   "555555555055505155555551505550555555555",
   "111111115051505111111111505150511111111",
   "111111115051505555555555505150511111111",
-  "111111115051500000000000005150511111111",
+  "111111115051500000020000005150511111111",
   "111111115051505555555555505150511111111",
   "111111115051505111111111505150511111111",
   "155555555055505555515555505550555555551",
@@ -168,6 +169,10 @@ bool closeyavast=false,closeybaidu=false, closeywin=false, closeymc=false;
 int gamestatus=0;
 int main() {
 
+    sf::SoundBuffer songStart, songComendo;
+    songComendo.loadFromFile("./sounds/pacman_chomp.wav");
+    sf::Sound soundComendo(songComendo);
+
     arquivo >> maxScore;
     arquivo.close();
     // cria a janela
@@ -277,6 +282,8 @@ int main() {
     sf::Clock relogioAnimacao;
     sf::Clock relogioAnimacaoPower;
     int framePower = 0;
+    sf::Clock relogioSomComendo;
+    const float TEMPO_TIMEOUT_SOM = 0.09f; // Ajuste este valor (em segundos) conforme o tamanho do seu arquivo de som
     sf::Clock relogioMovimentofantasma;
     sf::Clock relogioAnimacaofantasma;
     sf::Clock relogioTextoPiscando;
@@ -334,13 +341,6 @@ int main() {
                         avastEaten = false;
                         winEaten = false;
                         mcEaten = false;
-
-        
-                        for(int i = 0; i < linhas; i++) {
-                            for(int j = 0; j < colunas; j++) {
-                                if (mapa[i][j] == '2') mapa[i][j] = '0';
-                            }
-                        }
 
                         mapa[2][2] = '3';
                         mapa[2][36] = '3';
@@ -445,6 +445,12 @@ int main() {
 
             if(mapa[y][x]=='0'){
                 mapa[y][x]='2';
+            if (soundComendo.getStatus() != sf::SoundSource::Status::Playing) {
+                soundComendo.play();
+            }
+    
+            // Reseta o relógio toda vez que come uma bolinha
+            relogioSomComendo.restart();
                 score+=10;
             }
             else if(mapa[y][x]=='3'){
