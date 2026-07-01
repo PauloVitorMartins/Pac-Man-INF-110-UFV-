@@ -97,6 +97,16 @@ float sizeQuadBlack = SIZE*3;
 
 bool passouTunel = false;
 
+bool isPoweredUp = false;
+sf::Clock relogioPowerUp;
+const float TEMPO_POWER_UP = 5.0f;
+const float TEMPO_FANTASMINHA_NASCER = 3.0f;
+
+bool baiduEaten = false; sf::Clock relogioBaiduEaten;
+bool avastEaten = false; sf::Clock relogioAvastEaten;
+bool winEaten = false;   sf::Clock relogioWinEaten;
+bool mcEaten = false;    sf::Clock relogioMcEaten;
+
 int posxghostb =  16;
 int posyghostb =  19;
 
@@ -185,6 +195,9 @@ int main() {
     sf::Texture texture = retornaTextura("./sprites/virusdireita.png");
     sf::Texture texture1 = retornaTextura("./sprites/virusdireitagiro.png");
     sf::Texture texture2 = retornaTextura("./sprites/virusdireitaapagado.png");
+    sf::Texture texturaPacPower = retornaTextura("./sprites/fantasmaPowered.png"); 
+    sf::Texture texturaPacPower2 = retornaTextura("./sprites/fantasmaPowered2.png");
+    sf::Texture texturaFantasmaAssustado = retornaTextura("./sprites/scared.png");
     sf::Sprite sprite(texture);
 
     float escalaPacman = tamanhoPac / texture.getSize().x;
@@ -262,6 +275,8 @@ int main() {
     // cria um relogio para medir o tempo do PacMan
     sf::Clock relogioMovimento;
     sf::Clock relogioAnimacao;
+    sf::Clock relogioAnimacaoPower;
+    int framePower = 0;
     sf::Clock relogioMovimentofantasma;
     sf::Clock relogioAnimacaofantasma;
     sf::Clock relogioTextoPiscando;
@@ -314,6 +329,11 @@ int main() {
                         velocidade = 0.16f;
 
                         nivel = 1;
+                        isPoweredUp = false;
+                        baiduEaten = false;
+                        avastEaten = false;
+                        winEaten = false;
+                        mcEaten = false;
 
         
                         for(int i = 0; i < linhas; i++) {
@@ -429,6 +449,8 @@ int main() {
             }
             else if(mapa[y][x]=='3'){
                 mapa[y][x]='2';
+                isPoweredUp = true;
+                relogioPowerUp.restart();
                 score+=50;
             }
             
@@ -437,6 +459,10 @@ int main() {
             if (esq && mapa[y][x-1] == '5') { esq = false; isMoving = false;}
             if (dir && mapa[y][x+1] == '5') { dir = false; isMoving = false;}
 
+            }
+
+            if (isPoweredUp && relogioPowerUp.getElapsedTime().asSeconds() > TEMPO_POWER_UP) {
+                isPoweredUp = false;
             }
          
             if (cima) { posyf -= velocidadePacMan; sprite.setRotation(sf::degrees(270));}
@@ -484,6 +510,25 @@ int main() {
 
         bool noCentroXM = std::abs(posxf_ghostm - std::round(posxf_ghostm)) < tolerancia;
         bool noCentroYM = std::abs(posyf_ghostm - std::round(posyf_ghostm)) < tolerancia;
+
+        if (baiduEaten && relogioBaiduEaten.getElapsedTime().asSeconds() > TEMPO_FANTASMINHA_NASCER) {
+            baiduEaten = false; isOutQuadradoB = false; dirBaidu = 0;
+            posxf_ghostb = 16.0f; posyf_ghostb = 19.0f;
+        }
+        if (avastEaten && relogioAvastEaten.getElapsedTime().asSeconds() > TEMPO_FANTASMINHA_NASCER) {
+            avastEaten = false; isOutQuadradoA = false; dirAvast = 0;
+            posxf_ghosta = 18.0f; posyf_ghosta = 19.0f;
+        }
+        if (winEaten && relogioWinEaten.getElapsedTime().asSeconds() > TEMPO_FANTASMINHA_NASCER) {
+            winEaten = false; isOutQuadradoW = false; dirW = 0;
+            posxf_ghostw = 20.0f; posyf_ghostw = 19.0f;
+        }
+        if (mcEaten && relogioMcEaten.getElapsedTime().asSeconds() > TEMPO_FANTASMINHA_NASCER) {
+            mcEaten = false; isOutQuadradoM = false; dirM = 0;
+            posxf_ghostm = 22.0f; posyf_ghostm = 19.0f;
+        }
+
+        if(!winEaten) {
 
         if (!isOutQuadradoW) {
             posyf_ghostw -= velocidade; 
@@ -550,6 +595,9 @@ int main() {
             if (dirW == 2) posxf_ghostw -= velocidade;
             if (dirW == 3) posxf_ghostw += velocidade;
         }
+    }
+
+    if (!mcEaten) {
 
         if (!isOutQuadradoM) {
             posyf_ghostm -= velocidade; 
@@ -621,8 +669,9 @@ int main() {
             if (dirM == 3) posxf_ghostm += velocidade;
         
     }
+    }
 
-
+    if (!baiduEaten) {
         if (!isOutQuadradoB) {
             posyf_ghostb -= velocidade; 
             if (posyf_ghostb <= 15.0f) {
@@ -693,6 +742,8 @@ int main() {
             if (dirBaidu == 3) posxf_ghostb += velocidade;
         
     }
+    }
+    if (!avastEaten) {
         
     if (!isOutQuadradoA) {
             posyf_ghosta -= velocidade; 
@@ -762,7 +813,9 @@ int main() {
             if (dirAvast == 1) posyf_ghosta += velocidade;
             if (dirAvast == 2) posxf_ghosta -= velocidade;
             if (dirAvast == 3) posxf_ghosta += velocidade;
-    } 
+    }
+    }
+
 
         // desenha paredes
         for(int i=0;i<linhas;i++)
@@ -801,21 +854,46 @@ int main() {
         
         if(isMoving == true) {
             if(relogioAnimacao.getElapsedTime() < sf::seconds(0.08)) {
-                sprite.setTexture(texture1);
+                sprite.setTexture(texture1, true);
             } else if (relogioAnimacao.getElapsedTime() >= sf::seconds(0.16) && relogioAnimacao.getElapsedTime() < sf::seconds(0.24)) {
-                sprite.setTexture(texture2);
+                sprite.setTexture(texture2, true);
             }  else if (relogioAnimacao.getElapsedTime() >= sf::seconds(0.24)) {
-                sprite.setTexture(texture);
+                sprite.setTexture(texture, true);
                 relogioAnimacao.restart();
             }
-       } else {
-         sprite.setTexture(texture);
        }
+       
+       if (isPoweredUp) {
+            // Verifica se passaram 0.15 segundos (pode ajustar este valor para a animação ficar mais rápida ou mais lenta)
+            if (relogioAnimacaoPower.getElapsedTime().asSeconds() > 0.15f) {
+                // Alterna o frame entre 0 e 1
+                if (framePower == 0) {
+                    framePower = 1;
+                } else {
+                    framePower = 0;
+                }
+                // Reinicia o relógio para contar o próximo frame
+                relogioAnimacaoPower.restart();
+            }
+
+            // Define a textura correta consoante o frame atual
+            if (framePower == 0) {
+                sprite.setTexture(texturaPacPower, true);
+            } else {
+                sprite.setTexture(texturaPacPower2, true);
+            }
+        }
                    
 
         // desenha PacMan
-        sprite.setOrigin({texture.getSize().x / 2.0f, texture.getSize().y / 2.0f});
-        sprite.setPosition({xdeslocamento + posxf*SIZE + SIZE/2, ydeslocamento +posyf*SIZE + SIZE/2}); //o que fizer no desenho tem que fazer aqui
+        float texturaAtualX = sprite.getTexture().getSize().x;
+        float texturaAtualY = sprite.getTexture().getSize().y;
+        float escalaAtualX = tamanhoPac / texturaAtualX;
+        float escalaAtualY = tamanhoPac / texturaAtualY;
+
+        sprite.setScale({escalaAtualX, escalaAtualY});
+        sprite.setOrigin({texturaAtualX / 2.0f, texturaAtualY / 2.0f});
+        sprite.setPosition({xdeslocamento + posxf*SIZE + SIZE/2.0f, ydeslocamento + posyf*SIZE + SIZE/2.0f}); //o que fizer no desenho tem que fazer aqui
         // para renderização dos espaços e a posição dele baterem
         window.draw(sprite);
         //desenha o score
@@ -830,58 +908,79 @@ int main() {
         infoText.setPosition({tamanhoRealInfo.size.x, tamanhoRealInfo.size.y});
         window.draw(infoText);
 
-        // desenha fantasmabaidu
-        fantasmabaidu.setPosition({xdeslocamento + posxf_ghostb*SIZE + SIZE/2, ydeslocamento + posyf_ghostb*SIZE + SIZE/2});
-        window.draw(fantasmabaidu);
+        if (!baiduEaten) {
+            if (isPoweredUp) fantasmabaidu.setTexture(texturaFantasmaAssustado);
+            fantasmabaidu.setPosition({xdeslocamento + posxf_ghostb*SIZE + SIZE/2, ydeslocamento + posyf_ghostb*SIZE + SIZE/2});
+            window.draw(fantasmabaidu);
+        }
 
-        fantasmawin.setPosition({xdeslocamento + posxf_ghostw*SIZE + SIZE/2, ydeslocamento + posyf_ghostw*SIZE + SIZE/2}); //o que fizer no desenho tem que fazer aqui
-        // // para renderização dos espaços e a posição dele baterem
-        window.draw(fantasmawin);
+        if (!winEaten) {
+            if (isPoweredUp) fantasmawin.setTexture(texturaFantasmaAssustado);
+            fantasmawin.setPosition({xdeslocamento + posxf_ghostw*SIZE + SIZE/2, ydeslocamento + posyf_ghostw*SIZE + SIZE/2}); 
+            window.draw(fantasmawin);
+        }
 
-        fantasmaavast.setPosition({xdeslocamento + posxf_ghosta*SIZE + SIZE/2, ydeslocamento + posyf_ghosta*SIZE + SIZE/2});
-        // // para renderização dos espaços e a posição dele baterem
-        window.draw(fantasmaavast);
+        if (!avastEaten) {
+            if (isPoweredUp) fantasmaavast.setTexture(texturaFantasmaAssustado);
+            fantasmaavast.setPosition({xdeslocamento + posxf_ghosta*SIZE + SIZE/2, ydeslocamento + posyf_ghosta*SIZE + SIZE/2});
+            window.draw(fantasmaavast);
+        }
 
-        fantasmamc.setPosition({xdeslocamento + posxf_ghostm*SIZE + SIZE/2, ydeslocamento + posyf_ghostm*SIZE + SIZE/2}); //o que fizer no desenho tem que fazer aqui
-        // // para renderização dos espaços e a posição dele baterem
-        window.draw(fantasmamc);
+        if (!mcEaten) {
+            if (isPoweredUp) fantasmamc.setTexture(texturaFantasmaAssustado);
+            fantasmamc.setPosition({xdeslocamento + posxf_ghostm*SIZE + SIZE/2, ydeslocamento + posyf_ghostm*SIZE + SIZE/2}); 
+            window.draw(fantasmamc);
+        }
 
         quadBlack.setPosition({xdeslocamento + 38*SIZE, ydeslocamento + 19*SIZE + SIZE / 2.0f});
         window.draw(quadBlack);
         quadBlack1.setPosition({xdeslocamento + SIZE, ydeslocamento + 19*SIZE + SIZE / 2.0f });
         window.draw(quadBlack1);
 
-        //verifica se o pacman esta encostado no baidu
-        if (std::abs(posxf - posxf_ghostb) < 0.2f && std::abs(posyf - posyf_ghostb) < 0.2f) {
-             closexbaidu = true;
-             closeybaidu = true;
+        //verifica se o pacman está encostado no baidu
+        if (std::abs(posxf - posxf_ghostb) < 0.2f && std::abs(posyf - posyf_ghostb) < 0.2f && !baiduEaten) {
+            if (isPoweredUp) {
+                baiduEaten = true;
+                score += 200; // Pontos por comer o fantasma
+                relogioBaiduEaten.restart();
+            } else {
+                closexbaidu = true; closeybaidu = true;
+            }
         } else {
-            closexbaidu = false;
-            closeybaidu = false;
+            closexbaidu = false; closeybaidu = false;
         }
-        //verifica se o pacman esta encostado no mc
-        if (std::abs(posxf - posxf_ghostm) < 0.2f && std::abs(posyf - posyf_ghostm) < 0.2f) {
-            closexmc = true;
-            closeymc = true;
+
+        // Verifica se o pacman está encostado no mc
+        if (std::abs(posxf - posxf_ghostm) < 0.2f && std::abs(posyf - posyf_ghostm) < 0.2f && !mcEaten) {
+            if (isPoweredUp) {
+                mcEaten = true; score += 200; relogioMcEaten.restart();
+            } else {
+                closexmc = true; closeymc = true;
+            }
         } else {
-            closexmc = false;
-            closeymc = false;
+            closexmc = false; closeymc = false;
         }
-        //verifica se o pacman esta encostado no avast
-        if (std::abs(posxf - posxf_ghosta) < 0.2f && std::abs(posyf - posyf_ghosta) < 0.2f) {
-             closexavast = true;
-             closeyavast = true;
+
+        // Verifica se o pacman está encostado no avast
+        if (std::abs(posxf - posxf_ghosta) < 0.2f && std::abs(posyf - posyf_ghosta) < 0.2f && !avastEaten) {
+             if (isPoweredUp) {
+                avastEaten = true; score += 200; relogioAvastEaten.restart();
+            } else {
+                closexavast = true; closeyavast = true;
+            }
         } else {
-            closexavast = false;
-            closeyavast = false;
+            closexavast = false; closeyavast = false;
         }
-        //verifica se o pacman esta enconstado no win
-        if (std::abs(posxf - posxf_ghostw) < 0.2f && std::abs(posyf - posyf_ghostw) < 0.2f) {
-             closexwin = true;
-             closeywin = true;
+
+        // Verifica se o pacman está encostado no win
+        if (std::abs(posxf - posxf_ghostw) < 0.2f && std::abs(posyf - posyf_ghostw) < 0.2f && !winEaten) {
+             if (isPoweredUp) {
+                winEaten = true; score += 200; relogioWinEaten.restart();
+            } else {
+                closexwin = true; closeywin = true;
+            }
         } else {
-            closexwin = false;
-            closeywin = false;
+            closexwin = false; closeywin = false;
         }
         if (closexavast && closeyavast || closexbaidu && closeybaidu || 
                 closexwin && closeywin || closexmc && closeymc) {
