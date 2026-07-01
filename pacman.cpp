@@ -172,6 +172,7 @@ int main() {
     sf::SoundBuffer songStart, songComendo;
     songComendo.loadFromFile("./sounds/pacman_chomp.wav");
     sf::Sound soundComendo(songComendo);
+    soundComendo.setVolume(15.0f);
 
     arquivo >> maxScore;
     arquivo.close();
@@ -319,7 +320,7 @@ int main() {
                       intencao_esq = intencao_dir = intencao_cima = false;
                   }
                 if (keyPressed->scancode == sf::Keyboard::Scancode::Enter) {
-                        if (gamestatus == 0 || gamestatus == 2) { 
+                        if (gamestatus == 2 || gamestatus == 0) { 
                         score = 0;
                         isOutQuadradoB = isOutQuadradoA = isOutQuadradoW = isOutQuadradoM = false;
                         passouTunel = false;
@@ -342,6 +343,13 @@ int main() {
                         winEaten = false;
                         mcEaten = false;
 
+                        for(int i = 0; i < linhas; i++) {
+                            for(int j = 0; j < colunas; j++) {
+                                if (mapa[i][j] == '2') mapa[i][j] = '0';
+                            }
+                        }
+
+
                         mapa[2][2] = '3';
                         mapa[2][36] = '3';
                         mapa[11][2] = '3';
@@ -350,6 +358,7 @@ int main() {
                         mapa[27][36] = '3';
                         mapa[39][2] = '3';
                         mapa[39][36] = '3';
+                        mapa[23][19] = '2';
                         gamestatus = 1;
                     }
                 }
