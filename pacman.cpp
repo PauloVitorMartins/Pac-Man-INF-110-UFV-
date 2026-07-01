@@ -5,6 +5,7 @@
 #include <ctime>
 #include <vector>
 #include <iostream>
+#include <string>
 
 sf::Texture retornaTextura(std::string s) {
     sf::Texture texture;
@@ -124,7 +125,10 @@ bool intencao_cima = false;
 bool intencao_baixo = false;
 bool intencao_esq = false;
 bool intencao_dir = false;
-
+bool GAME=false;
+bool closexavast=false, closexbaidu=false, closexwin=false, closexmc=false;
+bool closeyavast=false,closeybaidu=false, closeywin=false, closeymc=false;
+int gamestatus=0;
 int main() {
     // cria a janela
     sf::RenderWindow window(sf::VideoMode({1920, 1080}), "Pac-Man", sf::State::Fullscreen);
@@ -217,14 +221,18 @@ int main() {
         return 0;
     }
     sf::Text text(font);
-    text.setPosition({0, 0});
+    sf::Text start(font, "PRESS ENTER TO START!", 50);
+    start.setPosition({500, 500});
     text.setFillColor({255, 255, 255});
+    text.setPosition({0, 0});
+    start.setFillColor({255, 255, 255});
 
     // cria um relogio para medir o tempo do PacMan
     sf::Clock relogioMovimento;
     sf::Clock relogioAnimacao;
     sf::Clock relogioMovimentofantasma;
     sf::Clock relogioAnimacaofantasma;
+    sf::Clock relogioTextoPiscando;
 
     srand(time(NULL));
 
@@ -240,25 +248,30 @@ int main() {
             else if (const auto* keyPressed = event->getIf<sf::Event::KeyPressed>()) {
                   if (keyPressed->scancode == sf::Keyboard::Scancode::Escape)
                       window.close();
-                  else if (keyPressed->scancode == sf::Keyboard::Scancode::Left) {
+                  else if (keyPressed->scancode == sf::Keyboard::Scancode::Left && GAME) {
                       intencao_esq = true;   // left key: PacMan tem intenção de se mover para esquerda
                       intencao_dir = intencao_cima = intencao_baixo = false;
                   }
-                  else if (keyPressed->scancode == sf::Keyboard::Scancode::Right) {
+                  else if (keyPressed->scancode == sf::Keyboard::Scancode::Right && GAME) {
                       intencao_dir = true;   // right key: PacMan tem intenção de se mover para direita
                       intencao_esq = intencao_cima = intencao_baixo = false;
                   }
-                  else if (keyPressed->scancode == sf::Keyboard::Scancode::Up) {
+                  else if (keyPressed->scancode == sf::Keyboard::Scancode::Up && GAME) {
                       intencao_cima = true;   // up key: PacMan tem intenção de se mover para cima
                       intencao_esq = intencao_dir = intencao_baixo = false;
                   }
-                  else if (keyPressed->scancode == sf::Keyboard::Scancode::Down) {
+                  else if (keyPressed->scancode == sf::Keyboard::Scancode::Down && GAME) {
                       intencao_baixo = true;   // down key: PacMan tem intenção de se mover para baixo
                       intencao_esq = intencao_dir = intencao_cima = false;
                   }
+                  if(keyPressed->scancode == sf::Keyboard::Scancode::Enter && !GAME && gamestatus==0){ 
+                    GAME = true;
+                    gamestatus=1;
+                  }
             }
         }
-
+        if(GAME){
+            
             float tolerancia = velocidade * 0.55f;
             bool noCentroX = std::abs(posxf - std::round(posxf)) < tolerancia;
             bool noCentroY = std::abs(posyf - std::round(posyf)) < tolerancia;
@@ -358,22 +371,6 @@ int main() {
             // Reseta o relógio UMA ÚNICA VEZ para o loop recomeçar
             relogioAnimacaofantasma.restart();
         }
-
-        // desenha fantasmabaidu
-        fantasmabaidu.setPosition({xdeslocamento + posxf_ghostb*SIZE + SIZE/2, ydeslocamento + posyf_ghostb*SIZE + SIZE/2});
-        window.draw(fantasmabaidu);
-
-        fantasmawin.setPosition({xdeslocamento + posxf_ghostw*SIZE + SIZE/2, ydeslocamento + posyf_ghostw*SIZE + SIZE/2}); //o que fizer no desenho tem que fazer aqui
-        // // para renderização dos espaços e a posição dele baterem
-        window.draw(fantasmawin);
-
-        fantasmaavast.setPosition({xdeslocamento + posxf_ghosta*SIZE + SIZE/2, ydeslocamento + posyf_ghosta*SIZE + SIZE/2});
-        // // para renderização dos espaços e a posição dele baterem
-        window.draw(fantasmaavast);
-
-        fantasmamc.setPosition({xdeslocamento + posxf_ghostm*SIZE + SIZE/2, ydeslocamento + posyf_ghostm*SIZE + SIZE/2}); //o que fizer no desenho tem que fazer aqui
-        // // para renderização dos espaços e a posição dele baterem
-        window.draw(fantasmamc);
 
         bool noCentroXB = std::abs(posxf_ghostb - std::round(posxf_ghostb)) < tolerancia;
         bool noCentroYB = std::abs(posyf_ghostb - std::round(posyf_ghostb)) < tolerancia;
@@ -521,6 +518,7 @@ int main() {
             if (dirM == 1) posyf_ghostm += velocidade;
             if (dirM == 2) posxf_ghostm -= velocidade;
             if (dirM == 3) posxf_ghostm += velocidade;
+        
     }
 
 
@@ -560,7 +558,7 @@ int main() {
             int direcoesValidas[4];
             int numDirecoes = 0; // Contador de quantas rotas estão livres
         
-
+                
             if (mapa[yb-1][xb] != '5' && direcaoOposta != 0) {
                 direcoesValidas[numDirecoes] = 0; // Cima
                 numDirecoes++;
@@ -592,8 +590,9 @@ int main() {
             if (dirBaidu == 1) posyf_ghostb += velocidade;
             if (dirBaidu == 2) posxf_ghostb -= velocidade;
             if (dirBaidu == 3) posxf_ghostb += velocidade;
+        
     }
-
+        
     if (!isOutQuadradoA) {
             posyf_ghosta -= velocidade; 
             if (posyf_ghosta <= 15.0f) {
@@ -663,6 +662,7 @@ int main() {
             if (dirAvast == 2) posxf_ghosta -= velocidade;
             if (dirAvast == 3) posxf_ghosta += velocidade;
     } 
+}
         // desenha paredes
         for(int i=0;i<linhas;i++)
             for(int j=0;j<colunas;j++) {
@@ -721,14 +721,73 @@ int main() {
         text.setString(std::to_string(score));
         window.draw(text);
 
+        // desenha fantasmabaidu
+        fantasmabaidu.setPosition({xdeslocamento + posxf_ghostb*SIZE + SIZE/2, ydeslocamento + posyf_ghostb*SIZE + SIZE/2});
+        window.draw(fantasmabaidu);
+
+        fantasmawin.setPosition({xdeslocamento + posxf_ghostw*SIZE + SIZE/2, ydeslocamento + posyf_ghostw*SIZE + SIZE/2}); //o que fizer no desenho tem que fazer aqui
+        // // para renderização dos espaços e a posição dele baterem
+        window.draw(fantasmawin);
+
+        fantasmaavast.setPosition({xdeslocamento + posxf_ghosta*SIZE + SIZE/2, ydeslocamento + posyf_ghosta*SIZE + SIZE/2});
+        // // para renderização dos espaços e a posição dele baterem
+        window.draw(fantasmaavast);
+
+        fantasmamc.setPosition({xdeslocamento + posxf_ghostm*SIZE + SIZE/2, ydeslocamento + posyf_ghostm*SIZE + SIZE/2}); //o que fizer no desenho tem que fazer aqui
+        // // para renderização dos espaços e a posição dele baterem
+        window.draw(fantasmamc);
+
         quadBlack.setPosition({xdeslocamento + 38*SIZE, ydeslocamento + 19*SIZE + SIZE / 2.0f});
         window.draw(quadBlack);
         quadBlack1.setPosition({xdeslocamento + SIZE, ydeslocamento + 19*SIZE + SIZE / 2.0f });
         window.draw(quadBlack1);
-
-
+        if(!GAME)
+            if(gamestatus==0)
+                window.draw(start);
+        //verifica se o pacman esta encostado no baidu
+        if (std::abs(posxf - posxf_ghostb) < 0.2f && std::abs(posyf - posyf_ghostb) < 0.2f) {
+             closexbaidu = true;
+             closeybaidu = true;
+        } else {
+            closexbaidu = false;
+            closeybaidu = false;
+        }
+        //verifica se o pacman esta encostado no mc
+        if (std::abs(posxf - posxf_ghostm) < 0.2f && std::abs(posyf - posyf_ghostm) < 0.2f) {
+            closexmc = true;
+            closeymc = true;
+        } else {
+            closexmc = false;
+            closeymc = false;
+        }
+        //verifica se o pacman esta encostado no avast
+        if (std::abs(posxf - posxf_ghosta) < 0.2f && std::abs(posyf - posyf_ghosta) < 0.2f) {
+             closexavast = true;
+             closeyavast = true;
+        } else {
+            closexavast = false;
+            closeyavast = false;
+        }
+        //verifica se o pacman esta enconstado no win
+        if (std::abs(posxf - posxf_ghostw) < 0.2f && std::abs(posyf - posyf_ghostw) < 0.2f) {
+             closexwin = true;
+             closeywin = true;
+        } else {
+            closexwin = false;
+            closeywin = false;
+        }
+        if(closexavast && closeyavast)
+            GAME = false; 
+        if(closexbaidu && closeybaidu)
+            GAME =false;
+        if(closexmc && closeymc)
+            GAME = false;
+        if(closexwin && closeywin)
+            GAME = false;
+        
         // termina e desenha o frame corrente
         window.display();
+    
     }
 
     return 0;
