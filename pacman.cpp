@@ -89,6 +89,7 @@ const float alturaTela = 1080.0f;
 const float SIZE = 22;
 const float tamanhoBolinhaPequena = SIZE * 0.15f; 
 const float tamanhoBolinhaGrande = SIZE * 0.35f;
+const float tamanhoDaFruta = SIZE;
 const float tamanhoPac = SIZE * 2.4f;
 float velocidade = 0.16f;
 float velocidadePacMan = 0.2f;
@@ -108,6 +109,13 @@ int posyghostw =  19;
 
 int posxghostm =  22;
 int posyghostm =  19;
+
+int posxfruit;
+int posyfruit;
+int berryeat=0;
+int orangeeat=0;
+int meloneat=0;
+bool berryhud=false, melonhud=false, orangehud=false;
 
 bool isOutQuadradoB = false;
 int dirBaidu = 0;
@@ -213,6 +221,18 @@ int main() {
     sf::Texture mctextura2 = retornaTextura("./sprites/mc2.png");
     sf::Sprite fantasmamc{mctextura};
 
+    //FRUTAS SPRITE
+
+    sf::Texture berrytextura = retornaTextura("./sprites/frutaberry.png");
+    sf::Texture orangetextura = retornaTextura("./sprites/frutaorange.png");
+    sf::Texture melontextura = retornaTextura("./sprites/frutamelon.png");
+    sf::Sprite melon{melontextura};
+    sf::Sprite orange{orangetextura};
+    sf::Sprite berry{berrytextura};
+    sf::Sprite berryh{berrytextura};
+    sf::Sprite melonh{melontextura};
+    sf::Sprite orangeh{orangetextura};
+
     // Define o tamanho desejado em pixels
     float tamanhoFantasma = SIZE*1.9f;
 
@@ -252,6 +272,9 @@ int main() {
     }
     sf::Text text(font);
     sf::Text start(font, "PRESS ENTER TO START!", tamanhoFonteStart);
+    sf::Text count1(font);
+    sf::Text count2(font);
+    sf::Text count3(font);
     auto tamanhoRealStart = start.getLocalBounds();
     start.setOrigin({tamanhoRealStart.size.x/2.0f, tamanhoRealStart.size.y/2});
     start.setPosition({larguraTela/2.0f, alturaTela/2.0f});
@@ -265,6 +288,7 @@ int main() {
     sf::Clock relogioMovimentofantasma;
     sf::Clock relogioAnimacaofantasma;
     sf::Clock relogioTextoPiscando;
+    sf::Clock TempoSpawnFrutas;
 
     srand(time(NULL));
 
@@ -430,6 +454,27 @@ int main() {
             else if(mapa[y][x]=='3'){
                 mapa[y][x]='2';
                 score+=50;
+            }
+            else if(mapa[y][x]=='6'){
+                mapa[y][x]='2';
+                score+=150;
+                berryeat++;
+                if(!berryhud)
+                    berryhud=true;
+            }
+            else if(mapa[y][x]=='7'){
+                mapa[y][x]='2';
+                score+=160;
+                meloneat++;
+                if(!melonhud)
+                    melonhud=true;
+            }
+            else if(mapa[y][x]=='9'){
+                mapa[y][x]='2';
+                score+=170;
+                orangeeat++;
+                if(!orangehud)
+                    orangehud=true;
             }
             
             if (cima && mapa[y-1][x] == '5') { cima = false; isMoving = false;}
@@ -763,6 +808,7 @@ int main() {
             if (dirAvast == 2) posxf_ghosta -= velocidade;
             if (dirAvast == 3) posxf_ghosta += velocidade;
     } 
+        sf::Time tempospawnfruta = TempoSpawnFrutas.getElapsedTime();
 
         // desenha paredes
         for(int i=0;i<linhas;i++)
@@ -797,7 +843,45 @@ int main() {
                 BOLA.setPosition({xdeslocamento + j*SIZE + SIZE/2, ydeslocamento + i*SIZE + SIZE/2});
                 window.draw(BOLA);
             }
+            else if(mapa[i][j] == '6'){
+                berry.setOrigin({tamanhoDaFruta, tamanhoDaFruta});
+                berry.setPosition({xdeslocamento + j*SIZE + SIZE/2, ydeslocamento + i*SIZE + SIZE/2});
+                berry.setScale(sf::Vector2f(0.5f, 0.5f));
+                window.draw(berry);
             }
+            else if(mapa[i][j] == '7'){
+                melon.setOrigin({tamanhoDaFruta, tamanhoDaFruta});
+                melon.setPosition({xdeslocamento + j*SIZE + SIZE/2, ydeslocamento + i*SIZE + SIZE/2});
+                melon.setScale(sf::Vector2f(0.5f, 0.5f));
+                window.draw(melon);
+            }
+            else if(mapa[i][j] == '9'){
+                orange.setOrigin({tamanhoDaFruta, tamanhoDaFruta});
+                orange.setPosition({xdeslocamento + j*SIZE + SIZE/2, ydeslocamento + i*SIZE + SIZE/2});
+                orange.setScale(sf::Vector2f(0.5f, 0.5f));
+                window.draw(orange);
+            }
+        
+           sf::Time tempospawnfruta = TempoSpawnFrutas.getElapsedTime();
+           char opcoesFrutas[] = {'6', '7', '9'};
+           if (tempospawnfruta >= sf::seconds(40.f)) {
+           TempoSpawnFrutas.restart(); 
+           tempospawnfruta = sf::Time::Zero; 
+           bool frutaPosicionada = false;
+           int tentativas = 0;
+           while (!frutaPosicionada && tentativas < 100) {
+           int posxfruit = rand() % 40; 
+           int posyfruit = rand() % 40; 
+           if (mapa[posyfruit][posxfruit] == '2') {
+               int indiceAleatorio = rand() % 3;
+               mapa[posyfruit][posxfruit] = opcoesFrutas[indiceAleatorio];
+               frutaPosicionada = true;
+           }
+           tentativas++;
+           }
+           }
+            
+           }
         
         if(isMoving == true) {
             
@@ -862,12 +946,34 @@ int main() {
         fantasmamc.setPosition({xdeslocamento + posxf_ghostm*SIZE + SIZE/2, ydeslocamento + posyf_ghostm*SIZE + SIZE/2}); //o que fizer no desenho tem que fazer aqui
         // // para renderização dos espaços e a posição dele baterem
         window.draw(fantasmamc);
-
+        
         quadBlack.setPosition({xdeslocamento + 38*SIZE, ydeslocamento + 19*SIZE + SIZE / 2.0f});
         window.draw(quadBlack);
         quadBlack1.setPosition({xdeslocamento + SIZE, ydeslocamento + 19*SIZE + SIZE / 2.0f });
         window.draw(quadBlack1);
 
+        //desenha a hud das frutinhas gostosinhas 
+        if(berryhud){
+            berryh.setPosition({xdeslocamento + (SIZE-10), ydeslocamento + 42*SIZE + SIZE / 2.0f});
+            window.draw(berryh);
+            count1.setPosition({xdeslocamento + 2*SIZE, ydeslocamento + 43*SIZE + SIZE / 2.0f});
+            count1.setString(std::to_string(berryeat));
+            window.draw(count1);
+        }
+        if(melonhud){
+            melonh.setPosition({xdeslocamento + 4*SIZE, ydeslocamento + 42*SIZE + SIZE / 2.0f});
+            window.draw(melonh);
+            count2.setPosition({xdeslocamento + 5*SIZE, ydeslocamento + 43*SIZE + SIZE / 2.0f});
+            count2.setString(std::to_string(meloneat));
+            window.draw(count2);
+        }
+        if(orangehud){
+            orangeh.setPosition({xdeslocamento + 7*SIZE, ydeslocamento + 42*SIZE + SIZE / 2.0f});
+            window.draw(orangeh);
+            count3.setPosition({xdeslocamento + 8*SIZE, ydeslocamento + 43*SIZE + SIZE / 2.0f});
+            count3.setString(std::to_string(orangeeat));
+            window.draw(count3);
+        }
         //verifica se o pacman esta encostado no baidu
         if (std::abs(posxf - posxf_ghostb) < 0.2f && std::abs(posyf - posyf_ghostb) < 0.2f) {
              closexbaidu = true;
