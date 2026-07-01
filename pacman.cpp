@@ -3,8 +3,16 @@
 #include <cstring>
 #include <cstdlib>
 #include <ctime>
+#include <fstream> //usada para ler arquivos
+#include <ostream> //usada para escrever arquivos
 #include <iostream>
 #include <string>
+
+std::string arquiv = "save";
+
+int maxScore = 0;
+
+std::ifstream arquivo(arquiv);
 
 sf::Texture retornaTextura(std::string s) {
     sf::Texture texture;
@@ -16,6 +24,7 @@ sf::Texture retornaTextura(std::string s) {
 
 const int linhas = 42;
 const int colunas = 39;
+
 
 char mapa[42][40] = {
   "111111111111111111111111111111111111111",
@@ -61,19 +70,32 @@ char mapa[42][40] = {
   "155555555555555555555555555555555555551",
   "111111111111111111111111111111111111111"
 };
+
+int contadorBolinhasRestantes() {
+    int total = 0;
+    for(int i = 0; i < linhas; i++) {
+        for(int j = 0; j < colunas; j++) {
+            if (mapa[i][j] == '0' || mapa[i][j] == '3') {
+                total++;
+            }
+        }
+    }
+    return total;
+}
+
+
 const float larguraTela = 1920.0f;
 const float alturaTela = 1080.0f;
 const float SIZE = 22;
 const float tamanhoBolinhaPequena = SIZE * 0.15f; 
 const float tamanhoBolinhaGrande = SIZE * 0.35f;
 const float tamanhoPac = SIZE * 2.4f;
-float velocidade = 0.2f;
+float velocidade = 0.16f;
+float velocidadePacMan = 0.2f;
 
 float sizeQuadBlack = SIZE*3;
 
 bool passouTunel = false;
-
-int maxScore = 0;
 
 int posxghostb =  16;
 int posyghostb =  19;
@@ -89,6 +111,8 @@ int posyghostm =  19;
 
 bool isOutQuadradoB = false;
 int dirBaidu = 0;
+
+int nivel = 1;
 
 bool isOutQuadradoA = false;
 int dirAvast = 0;
@@ -133,6 +157,9 @@ bool closexavast=false, closexbaidu=false, closexwin=false, closexmc=false;
 bool closeyavast=false,closeybaidu=false, closeywin=false, closeymc=false;
 int gamestatus=0;
 int main() {
+
+    arquivo >> maxScore;
+    arquivo.close();
     // cria a janela
     sf::RenderWindow window(sf::VideoMode({1920, 1080}), "Pac-Man", sf::State::Fullscreen);
     window.setFramerateLimit(60);
@@ -284,6 +311,8 @@ int main() {
                         posxf_ghostw = 20.0f; posyf_ghostw = 19.0f;
                         posxf_ghostm = 22.0f; posyf_ghostm = 19.0f;
 
+                        velocidade = 0.16f;
+
         
                         for(int i = 0; i < linhas; i++) {
                             for(int j = 0; j < colunas; j++) {
@@ -293,8 +322,12 @@ int main() {
 
                         mapa[2][2] = '3';
                         mapa[2][36] = '3';
+                        mapa[11][2] = '3';
+                        mapa[11][36] = '3';
                         mapa[27][2] = '3';
                         mapa[27][36] = '3';
+                        mapa[39][2] = '3';
+                        mapa[39][36] = '3';
                         gamestatus = 1;
                     }
                 }
@@ -315,8 +348,30 @@ int main() {
             }
         } 
         else if (gamestatus == 1) {
+
+            if(contadorBolinhasRestantes() == 0) {
+                nivel++;
+                        for(int i = 0; i < linhas; i++) {
+                            for(int j = 0; j < colunas; j++) {
+                                if (mapa[i][j] == '2') mapa[i][j] = '0';
+                            }
+                        }
+
+                        if (nivel >= 3) {
+                            velocidade += 0.02f;
+                        }
+
+                        mapa[2][2] = '3';
+                        mapa[2][36] = '3';
+                        mapa[11][2] = '3';
+                        mapa[11][36] = '3';
+                        mapa[27][2] = '3';
+                        mapa[27][36] = '3';
+                        mapa[39][2] = '3';
+                        mapa[39][36] = '3';
+            }
             
-            float tolerancia = velocidade * 0.55f;
+            float tolerancia = velocidadePacMan * 0.55f;
             bool noCentroX = std::abs(posxf - std::round(posxf)) < tolerancia;
             bool noCentroY = std::abs(posyf - std::round(posyf)) < tolerancia;
 
@@ -382,10 +437,10 @@ int main() {
 
             }
          
-            if (cima) { posyf -= velocidade; sprite.setRotation(sf::degrees(270));}
-            if (baixo) { posyf += velocidade; sprite.setRotation(sf::degrees(90));}
-            if (esq) { posxf -= velocidade; sprite.setRotation(sf::degrees(180));}
-            if (dir) { posxf += velocidade; sprite.setRotation(sf::degrees(0));}
+            if (cima) { posyf -= velocidadePacMan; sprite.setRotation(sf::degrees(270));}
+            if (baixo) { posyf += velocidadePacMan; sprite.setRotation(sf::degrees(90));}
+            if (esq) { posxf -= velocidadePacMan; sprite.setRotation(sf::degrees(180));}
+            if (dir) { posxf += velocidadePacMan; sprite.setRotation(sf::degrees(0));}
             
         // limpa a janela com a cor preta
         window.clear(sf::Color::Black);
@@ -762,8 +817,16 @@ int main() {
         // para renderização dos espaços e a posição dele baterem
         window.draw(sprite);
         //desenha o score
-        text.setString(std::to_string(score));
-        window.draw(text);
+        std::string infoStr = "LEVEL: " + std::to_string(nivel) + 
+                      "   SCORE: " + std::to_string(score) + 
+                      "   MAX: " + std::to_string(maxScore);
+
+        sf::Text infoText(font, infoStr, tamanhoFonteGameOver / 2);
+        infoText.setFillColor({255, 255, 255});
+        auto tamanhoRealInfo = infoText.getLocalBounds();
+        infoText.setOrigin({tamanhoRealInfo.size.x / 2.0f, tamanhoRealInfo.size.y / 2.0f});
+        infoText.setPosition({tamanhoRealInfo.size.x, tamanhoRealInfo.size.y});
+        window.draw(infoText);
 
         // desenha fantasmabaidu
         fantasmabaidu.setPosition({xdeslocamento + posxf_ghostb*SIZE + SIZE/2, ydeslocamento + posyf_ghostb*SIZE + SIZE/2});
@@ -824,6 +887,9 @@ int main() {
                 gamestatus = 2; // Muda para a tela de Game Over
                 if (score > maxScore) {
                     maxScore = score; // Atualiza o histórico
+                    std::ofstream arquivoEscrita("save");
+                    arquivoEscrita << maxScore;
+                    arquivoEscrita.close();
                 }
             }
 
@@ -835,19 +901,22 @@ int main() {
             auto tamanhoRealGameOver = gameOverText.getLocalBounds();
             gameOverText.setOrigin({tamanhoRealGameOver.size.x/2.0f, tamanhoRealGameOver.size.y/2.0f});
             gameOverText.setPosition({(larguraTela / 2.0f), (alturaTela / 2.0f)});
-            
-            std::string pontuacaoStr = "SCORE: " + std::to_string(score) + "   MAX: " + std::to_string(maxScore);
-            sf::Text scoreText(font, pontuacaoStr, tamanhoFonteGameOver/2);
-            scoreText.setFillColor({255, 255, 255});
-            auto tamanhoRealScore = scoreText.getLocalBounds();
-            scoreText.setOrigin({tamanhoRealScore.size.x/2.0f, tamanhoRealScore.size.y/2.0f});
-            scoreText.setPosition({(larguraTela / 2.0f), (alturaTela / 2.0f) + tamanhoRealGameOver.size.y});
+            std::string infoStr = "LEVEL: " + std::to_string(nivel) + 
+                      "   SCORE: " + std::to_string(score) + 
+                      "   MAX: " + std::to_string(maxScore);
+
+            sf::Text infoText(font, infoStr, tamanhoFonteGameOver / 2);
+            infoText.setFillColor({255, 255, 255});
+            auto tamanhoRealInfo = infoText.getLocalBounds();
+            infoText.setOrigin({tamanhoRealInfo.size.x / 2.0f, tamanhoRealInfo.size.y / 2.0f});
+            infoText.setPosition({(larguraTela / 2.0f), (alturaTela / 2.0f + tamanhoRealGameOver.size.y)});
+            window.draw(infoText);
 
             window.draw(gameOverText);
-            window.draw(scoreText);
+            window.draw(infoText);
 
             if (showText) {
-                start.setPosition({larguraTela/2.0f, alturaTela/2.0f + tamanhoRealGameOver.size.y + tamanhoRealScore.size.y*2});
+                start.setPosition({larguraTela/2.0f, alturaTela/2.0f + tamanhoRealGameOver.size.y + tamanhoRealInfo.size.y*2});
                 window.draw(start);
             }
         }
