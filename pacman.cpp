@@ -370,8 +370,21 @@ int main() {
                         for(int i = 0; i < linhas; i++) {
                             for(int j = 0; j < colunas; j++) {
                                 if (mapa[i][j] == '2') mapa[i][j] = '0';
+                                if (mapa[i][j] == '6') mapa[i][j] = '0';
+                                if (mapa[i][j] == '7') mapa[i][j] = '0';
+                                if (mapa[i][j] == '9') mapa[i][j] = '0';
                             }
                         }
+
+                        berryhud = false;
+                        melonhud = false;
+                        orangehud = false;
+
+                        berryeat = 0;
+                        orangeeat = 0;
+                        meloneat = 0;
+
+                        TempoSpawnFrutas.restart();
 
 
                         mapa[2][2] = '3';
