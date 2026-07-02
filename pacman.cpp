@@ -23,6 +23,14 @@ sf::Texture retornaTextura(std::string s) {
     return texture;
 }
 
+sf::SoundBuffer retornaSom(std::string s) {
+    sf::SoundBuffer som;
+    if (!som.loadFromFile(s)) {
+        std::cout << "Erro lendo som: " << s << "\n";
+    }
+    return som;
+}
+
 const int linhas = 42;
 const int colunas = 39;
 
@@ -177,10 +185,13 @@ bool closeyavast=false,closeybaidu=false, closeywin=false, closeymc=false;
 int gamestatus=0;
 int main() {
 
-    sf::SoundBuffer songStart, songComendo;
-    songComendo.loadFromFile("./sounds/pacman_chomp.wav");
-    sf::Sound soundComendo(songComendo);
+    sf::SoundBuffer somComendo = retornaSom("./sounds/pacman_chomp.wav");
+    sf::Sound soundComendo(somComendo);
     soundComendo.setVolume(15.0f);
+
+    sf::SoundBuffer songComendoFantasma = retornaSom("./sounds/comendoFantasma.wav");
+    sf::Sound comeF(songComendoFantasma);
+
 
     arquivo >> maxScore;
     arquivo.close();
@@ -417,7 +428,7 @@ int main() {
         } 
         else if (gamestatus == 1) {
 
-            if(contadorBolinhasRestantes() == 0) {
+            if(contadorBolinhasRestantes() == 1) {
                 nivel++;
                         for(int i = 0; i < linhas; i++) {
                             for(int j = 0; j < colunas; j++) {
@@ -1082,6 +1093,7 @@ int main() {
         if (std::abs(posxf - posxf_ghostb) < 0.2f && std::abs(posyf - posyf_ghostb) < 0.2f && !baiduEaten) {
             if (isPoweredUp) {
                 baiduEaten = true;
+                comeF.play();
                 score += 200; // Pontos por comer o fantasma
                 relogioBaiduEaten.restart();
             } else {
@@ -1094,7 +1106,7 @@ int main() {
         // Verifica se o pacman está encostado no mc
         if (std::abs(posxf - posxf_ghostm) < 0.2f && std::abs(posyf - posyf_ghostm) < 0.2f && !mcEaten) {
             if (isPoweredUp) {
-                mcEaten = true; score += 200; relogioMcEaten.restart();
+                mcEaten = true; score += 200; comeF.play(); relogioMcEaten.restart();
             } else {
                 closexmc = true; closeymc = true;
             }
@@ -1105,7 +1117,7 @@ int main() {
         // Verifica se o pacman está encostado no avast
         if (std::abs(posxf - posxf_ghosta) < 0.2f && std::abs(posyf - posyf_ghosta) < 0.2f && !avastEaten) {
              if (isPoweredUp) {
-                avastEaten = true; score += 200; relogioAvastEaten.restart();
+                avastEaten = true; score += 200; comeF.play(); relogioAvastEaten.restart();
             } else {
                 closexavast = true; closeyavast = true;
             }
@@ -1116,7 +1128,7 @@ int main() {
         // Verifica se o pacman está encostado no win
         if (std::abs(posxf - posxf_ghostw) < 0.2f && std::abs(posyf - posyf_ghostw) < 0.2f && !winEaten) {
              if (isPoweredUp) {
-                winEaten = true; score += 200; relogioWinEaten.restart();
+                winEaten = true; score += 200; comeF.play(); relogioWinEaten.restart();
             } else {
                 closexwin = true; closeywin = true;
             }
