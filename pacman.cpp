@@ -931,7 +931,7 @@ int main() {
         
            sf::Time tempospawnfruta = TempoSpawnFrutas.getElapsedTime();
            char opcoesFrutas[] = {'6', '7', '9'};
-           if (tempospawnfruta >= sf::seconds(40.f)) {
+           if (tempospawnfruta >= sf::seconds(1.f)) {
            TempoSpawnFrutas.restart(); 
            tempospawnfruta = sf::Time::Zero; 
            bool frutaPosicionada = false;
@@ -1024,6 +1024,27 @@ int main() {
         infoText.setOrigin({tamanhoRealInfo.size.x / 2.0f, tamanhoRealInfo.size.y / 2.0f});
         infoText.setPosition({tamanhoRealInfo.size.x, tamanhoRealInfo.size.y});
         window.draw(infoText);
+        if(berryhud){
+            berryh.setPosition({xdeslocamento + (SIZE-10), ydeslocamento + 42*SIZE + SIZE / 2.0f});
+            window.draw(berryh);
+            count1.setPosition({xdeslocamento + SIZE*2, ydeslocamento + 43*SIZE + SIZE / 2.0f});
+            count1.setString(std::to_string(berryeat));
+            window.draw(count1);
+        }
+        if(melonhud){
+            melonh.setPosition({xdeslocamento + SIZE*4, ydeslocamento + 42*SIZE + SIZE / 2.0f});
+            window.draw(melonh);
+            count2.setPosition({xdeslocamento + SIZE*5, ydeslocamento + 43*SIZE + SIZE / 2.0f});
+            count2.setString(std::to_string(meloneat));
+            window.draw(count2);
+        }
+        if(orangehud){
+            orangeh.setPosition({xdeslocamento + SIZE*7, ydeslocamento + 42*SIZE + SIZE / 2.0f});
+            window.draw(orangeh);
+            count3.setPosition({xdeslocamento + SIZE*8, ydeslocamento + 43*SIZE + SIZE / 2.0f});
+            count3.setString(std::to_string(orangeeat));
+            window.draw(count3);
+        }
 
         if (!baiduEaten) {
             if (isPoweredUp) fantasmabaidu.setTexture(texturaFantasmaAssustado);
