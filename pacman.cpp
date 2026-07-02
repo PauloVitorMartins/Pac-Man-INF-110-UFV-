@@ -117,6 +117,8 @@ bool avastEaten = false; sf::Clock relogioAvastEaten;
 bool winEaten = false;   sf::Clock relogioWinEaten;
 bool mcEaten = false;    sf::Clock relogioMcEaten;
 
+bool pressionou = false;
+
 int posxghostb =  16;
 int posyghostb =  19;
 
@@ -180,6 +182,7 @@ bool intencao_cima = false;
 bool intencao_baixo = false;
 bool intencao_esq = false;
 bool intencao_dir = false;
+bool morreu = false;
 bool closexavast=false, closexbaidu=false, closexwin=false, closexmc=false;
 bool closeyavast=false,closeybaidu=false, closeywin=false, closeymc=false;
 int gamestatus=0;
@@ -191,7 +194,27 @@ int main() {
 
     sf::SoundBuffer songComendoFantasma = retornaSom("./sounds/comendoFantasma.wav");
     sf::Sound comeF(songComendoFantasma);
+    soundComendo.setVolume(40.0f);
 
+    sf::SoundBuffer songComendoFruta = retornaSom("./sounds/comendoFruta.wav");
+    sf::Sound comeFruta(songComendoFruta);
+    soundComendo.setVolume(40.0f);
+
+    sf::SoundBuffer songStart = retornaSom("./sounds/start.wav");
+    sf::Sound somStart(songStart);
+
+    sf::SoundBuffer songPersegue = retornaSom("./sounds/somPersegue.wav");
+    sf::Sound somPersegue(songPersegue);
+
+    sf::SoundBuffer songPress = retornaSom("./sounds/press.wav");
+    sf::Sound somPress(songPress);
+
+    sf::SoundBuffer songMorrendo = retornaSom("./sounds/morrendo.wav");
+    sf::Sound somMorrendo(songMorrendo);
+
+
+    sf::SoundBuffer songSirene = retornaSom("./sounds/somSirene.wav");
+    sf::Sound somSirene(songSirene);
 
     arquivo >> maxScore;
     arquivo.close();
@@ -318,6 +341,12 @@ int main() {
     sf::Clock relogioAnimacaoPower;
     int framePower = 0;
     sf::Clock relogioSomComendo;
+    sf::Clock relogioSomStart;
+    bool firstTime = true;
+    sf::Clock relogioSomSirene;
+    bool firstTimeSirene = true;
+    sf::Clock relogioSomPersegue;
+    bool firstTimePersegue = true;
     const float TEMPO_TIMEOUT_SOM = 0.09f; // Ajuste este valor (em segundos) conforme o tamanho do seu arquivo de som
     sf::Clock relogioMovimentofantasma;
     sf::Clock relogioAnimacaofantasma;
@@ -355,6 +384,13 @@ int main() {
                       intencao_esq = intencao_dir = intencao_cima = false;
                   }
                 if (keyPressed->scancode == sf::Keyboard::Scancode::Enter) {
+                    pressionou = true;
+                                if(pressionou == true) {
+                                    somPress.play();
+                                    pressionou = false;
+                                    somMorrendo.stop();                 
+                                }
+
                         if (gamestatus == 2 || gamestatus == 0) { 
                         score = 0;
                         isOutQuadradoB = isOutQuadradoA = isOutQuadradoW = isOutQuadradoM = false;
@@ -425,10 +461,24 @@ int main() {
             if (showText) {
                 window.draw(start);
             }
+         if(firstTime == true || relogioSomStart.getElapsedTime().asSeconds() >= 4.2f) {
+                        somStart.play();
+                        firstTime = false;
+                        relogioSomStart.restart();
+                        
+         }
         } 
         else if (gamestatus == 1) {
+            somStart.stop();
+            if (!isPoweredUp) {
+                if(firstTimeSirene == true || relogioSomSirene.getElapsedTime().asSeconds() >= 3.2f) {
+                    somSirene.play();
+                    firstTimeSirene = false;
+                    relogioSomSirene.restart();       
+                }
+            }
 
-            if(contadorBolinhasRestantes() == 1) {
+            if(contadorBolinhasRestantes() <= 0) {
                 nivel++;
                         for(int i = 0; i < linhas; i++) {
                             for(int j = 0; j < colunas; j++) {
@@ -513,13 +563,19 @@ int main() {
             else if(mapa[y][x]=='3'){
                 mapa[y][x]='2';
                 isPoweredUp = true;
+                if (!isPoweredUp) {
+                    firstTimePersegue = true;
+                    somSirene.stop();
+                }
                 relogioPowerUp.restart();
                 score+=50;
+                somSirene.stop();
             }
             else if(mapa[y][x]=='6'){
                 mapa[y][x]='2';
                 score+=150;
                 berryeat++;
+                comeFruta.play();
                 if(!berryhud)
                     berryhud=true;
             }
@@ -527,6 +583,7 @@ int main() {
                 mapa[y][x]='2';
                 score+=160;
                 meloneat++;
+                comeFruta.play();
                 if(!melonhud)
                     melonhud=true;
             }
@@ -534,6 +591,7 @@ int main() {
                 mapa[y][x]='2';
                 score+=170;
                 orangeeat++;
+                comeFruta.play();
                 if(!orangehud)
                     orangehud=true;
             }
@@ -547,6 +605,10 @@ int main() {
 
             if (isPoweredUp && relogioPowerUp.getElapsedTime().asSeconds() > TEMPO_POWER_UP) {
                 isPoweredUp = false;
+                somPersegue.stop();
+                firstTimePersegue = false;
+                firstTimeSirene = true;
+                relogioSomSirene.restart();
             }
          
             if (cima) { posyf -= velocidadePacMan; sprite.setRotation(sf::degrees(270));}
@@ -996,6 +1058,7 @@ int main() {
        }
        
        if (isPoweredUp) {
+            soundComendo.stop();
             // Verifica se passaram 0.15 segundos (pode ajustar este valor para a animação ficar mais rápida ou mais lenta)
             if (relogioAnimacaoPower.getElapsedTime().asSeconds() > 0.15f) {
                 // Alterna o frame entre 0 e 1
@@ -1014,6 +1077,12 @@ int main() {
             } else {
                 sprite.setTexture(texturaPacPower2, true);
             }
+            if(firstTimePersegue == true || relogioSomPersegue.getElapsedTime().asSeconds() >= 5.2f) {
+                    somSirene.stop();
+                    somPersegue.play();
+                    firstTimePersegue = false;
+                    relogioSomPersegue.restart();             
+         }
         }
    
         // desenha PacMan
@@ -1138,6 +1207,7 @@ int main() {
         if (closexavast && closeyavast || closexbaidu && closeybaidu || 
                 closexwin && closeywin || closexmc && closeymc) {
                 
+                morreu = true;
                 gamestatus = 2; // Muda para a tela de Game Over
                 if (score > maxScore) {
                     maxScore = score; // Atualiza o histórico
@@ -1149,6 +1219,11 @@ int main() {
 
 
     } else if (gamestatus == 2) {
+            somSirene.stop();
+        if(morreu == true) {
+            somMorrendo.play();
+            morreu = false;                  
+         }
 
             sf::Text gameOverText(font, "GAME OVER",  tamanhoFonteGameOver);
             gameOverText.setFillColor({255, 0, 0});
