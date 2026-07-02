@@ -931,7 +931,7 @@ int main() {
         
            sf::Time tempospawnfruta = TempoSpawnFrutas.getElapsedTime();
            char opcoesFrutas[] = {'6', '7', '9'};
-           if (tempospawnfruta >= sf::seconds(1.f)) {
+           if (tempospawnfruta >= sf::seconds(35.f)) {
            TempoSpawnFrutas.restart(); 
            tempospawnfruta = sf::Time::Zero; 
            bool frutaPosicionada = false;
@@ -991,17 +991,7 @@ int main() {
                 sprite.setTexture(texturaPacPower2, true);
             }
         }
-                   
-       // Verifique se passou tempo suficiente para os fantasmas andarem
-       // if (relogioMovimentofantasma.getElapsedTime().asSeconds() > 0.3f) {
-       //     moverFantasmaRandom(posxghostb, posyghostb, mapa);
-       //     moverFantasmaRandom(posxghosta, posyghosta, mapa);
-       //     moverFantasmaRandom(posxghostw, posyghostw, mapa);
-       //     moverFantasmaRandom(posxghostm, posyghostm, mapa);
-    
-    // Zera o relógio para o próximo ciclo
-    //relogioMovimentofantasma.restart();
-//}
+   
         // desenha PacMan
         float texturaAtualX = sprite.getTexture().getSize().x;
         float texturaAtualY = sprite.getTexture().getSize().y;
